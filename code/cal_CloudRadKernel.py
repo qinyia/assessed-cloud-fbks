@@ -197,17 +197,36 @@ def do_obscuration_calcs(CTL,FUT,Klw,Ksw,DT):
     return(obsc_output)
         
 ###########################################################################        
-def get_amip_data(filename,var,lev=None):
+#<qinyi 2021-08-22 #------------------
+#def get_amip_data(filename,var,lev=None):
+def get_amip_data(filename,var,tslice, lev=None):
+
     # load in cmip data using the appropriate function for the experiment/mip
 
     print('        '+var)
 
-    tslice = ("1983-01-01","2008-12-31") # we only want this portion of the amip run (overlap with all AMIPs and ISCCP)
+    #<qinyi 2021-08-22 #------------------
+    #tslice = ("1983-01-01","2008-12-31") # we only want this portion of the amip run (overlap with all AMIPs and ISCCP)
+    #tslice = ("1983-01-01","2008-12-31")
+    #<qinyi 2021-08-22 #------------------
+
     f=cdms.open(filename[var])
     if lev:
-        data = f(var,time=tslice,level=lev,squeeze=1) 
+        tmp = f[var]
+        levs = tmp.getLevel()[:] # get all levels
+        lev_idx = find_nearest(levs,lev) # find the level index where level is close to the aimed level.
+        
+        #print('levs = ',levs)
+        #print('lev_idx = ',lev_idx)
+        #print('levs[lev_idx] = ',levs[lev_idx])
+
+        data = f(var,time=tslice,level=levs[lev_idx],squeeze=1) 
     else:
-        data = f(var,time=tslice,squeeze=1) 
+        if var == 'clisccp' or var == 'FISCCP1_COSP':
+            data = f(var, time=tslice,squeeze=1,order="02134")
+        else:
+            data = f(var,time=tslice,squeeze=1) 
+
     f.close()
     # Compute climatological monthly means       
     dummy,avg = monthly_anomalies(data)
@@ -232,23 +251,41 @@ def get_area_wts(data):
 
 
 ###########################################################################
-def get_CRK_data(filenames):
+def get_CRK_data(filenames,fields,tslice):
     # Read in data, regrid and map kernels to lat/lon
     
+    #<qinyi 2021-08-22 #------------------
+
     # Load in regridded monthly mean climatologies from control and perturbed simulation
     print('    amip')
-    ctl_tas = get_amip_data(filenames['amip'],'tas')
-    ctl_rsdscs = get_amip_data(filenames['amip'],'rsdscs')
-    ctl_rsuscs = get_amip_data(filenames['amip'],'rsuscs')
-    ctl_wap = get_amip_data(filenames['amip'],'wap',50000)
-    ctl_clisccp = get_amip_data(filenames['amip'],'clisccp')
+    #ctl_tas = get_amip_data(filenames['amip'],'tas')
+    #ctl_rsdscs = get_amip_data(filenames['amip'],'rsdscs')
+    #ctl_rsuscs = get_amip_data(filenames['amip'],'rsuscs')
+    #ctl_wap = get_amip_data(filenames['amip'],'wap',50000)
+    #ctl_clisccp = get_amip_data(filenames['amip'],'clisccp')
+
+    ctl_tas = get_amip_data(filenames['amip'],fields[0],tslice)
+    ctl_rsdscs = get_amip_data(filenames['amip'],fields[1],tslice)
+    ctl_rsuscs = get_amip_data(filenames['amip'],fields[2],tslice)
+    ctl_wap = get_amip_data(filenames['amip'],fields[3],tslice, 500)
+    ctl_clisccp = get_amip_data(filenames['amip'],fields[4],tslice)
+
     
     print('    amip-p4K')
-    fut_tas = get_amip_data(filenames['amip-p4K'],'tas')
-    fut_rsdscs = get_amip_data(filenames['amip-p4K'],'rsdscs')
-    fut_rsuscs = get_amip_data(filenames['amip-p4K'],'rsuscs')
-    fut_wap = get_amip_data(filenames['amip-p4K'],'wap',50000)
-    fut_clisccp = get_amip_data(filenames['amip-p4K'],'clisccp')
+    #fut_tas = get_amip_data(filenames['amip-p4K'],'tas')
+    #fut_rsdscs = get_amip_data(filenames['amip-p4K'],'rsdscs')
+    #fut_rsuscs = get_amip_data(filenames['amip-p4K'],'rsuscs')
+    #fut_wap = get_amip_data(filenames['amip-p4K'],'wap',50000)
+    #fut_clisccp = get_amip_data(filenames['amip-p4K'],'clisccp')
+
+    fut_tas = get_amip_data(filenames['amip-p4K'],fields[0],tslice)
+    fut_rsdscs = get_amip_data(filenames['amip-p4K'],fields[1],tslice)
+    fut_rsuscs = get_amip_data(filenames['amip-p4K'],fields[2],tslice)
+    fut_wap = get_amip_data(filenames['amip-p4K'],fields[3],tslice, 500)
+    fut_clisccp = get_amip_data(filenames['amip-p4K'],fields[4],tslice)
+
+    #<qinyi 2021-08-22 #------------------
+
 
     # Make sure wap is in hPa/day
     fut_wap = 36*24*fut_wap # Pa s-1 --> hPa/day 
@@ -747,10 +784,10 @@ def YEAR(data):
     return anndata
 
 ###############################################################################################
-def CloudRadKernel(filenames):
+def CloudRadKernel(filenames,fields,tslice):
 
     print('Load in data')
-    ctl_clisccp,fut_clisccp,LWK,SWK,dTs,ctl_clisccp_wap,fut_clisccp_wap,LWK_wap,SWK_wap,ctl_N,fut_N = get_CRK_data(filenames)
+    ctl_clisccp,fut_clisccp,LWK,SWK,dTs,ctl_clisccp_wap,fut_clisccp_wap,LWK_wap,SWK_wap,ctl_N,fut_N = get_CRK_data(filenames,fields,tslice)
        
     # Create a dummy variable so we don't have keep calling the land mask function:
     dummy = ctl_clisccp[:12,0,0,:] # 12,90,144
@@ -871,4 +908,9 @@ def CloudRadKernel(filenames):
     # [sec][flavor][region][all / ocn / lnd / ocn_asc / ocn_dsc]
     return(fbk_dict,obsc_fbk_dict,KEM_dict)
         
-    
+#<qinyi 2021-08-22 #------------------ add function to find the nearest data index 
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx   
+

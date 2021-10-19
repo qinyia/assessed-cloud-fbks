@@ -15,7 +15,7 @@ import string
 from datetime import date 
 
 HEIGHT=0.45
-figdir = '../figures/'
+#figdir = '../figures/'
 datadir = '../data/'
 
 #######################################################
@@ -554,7 +554,7 @@ def static_plot(assessed,ecs,models,fbk_names,gen,fig,gs):
 
 
 #######################################################   
-def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmod):
+def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmod,figdir):
 
     # Set a unique marker for your new model
     MARK[newmod] = '<'
