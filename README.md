@@ -24,3 +24,5 @@ git clone https://github.com/qinyia/assessed-cloud-fbks.git
 python main.py
 ```
 7. Inspect the generated figures and tables in the /figures/ directory.
+
+## Oct 19, 2021: modified by Yi Qin to read raw model data.
