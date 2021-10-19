@@ -13,7 +13,7 @@ conda activate cdat
 ```
 3. Clone this repo:
 ```
-git clone https://github.com/mzelinka/assessed-cloud-fbks.git
+git clone https://github.com/qinyia/assessed-cloud-fbks.git
 ```
 4. cd to assessed-cloud-fbks/code/
 
