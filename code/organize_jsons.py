@@ -13,10 +13,15 @@ meta = {
 "author"        :   "Mark D. Zelinka <zelinka1@llnl.gov>",
 }
 
-def organize_fbk_jsons(new_dict,new_obsc_dict,mo,ripf):
+def organize_fbk_jsons(new_dict,new_obsc_dict,mo,ripf,flag):
+    # flag == 0 means this is the first new model included, just read the default json file.
 
     # Load in the existing file containing pre-computed CMIP6 feedbacks
-    file = datadir+'cmip6_amip-p4K_cld_fbks.json'
+    if flag == 0:
+        file = datadir+'cmip6_amip-p4K_cld_fbks.json'
+    else:
+        file = datadir+'cmip6_amip-p4K_cld_fbks_update.json'
+
     f = open(file,'r')
     old_dict = json.load(f)
     f.close()
@@ -26,8 +31,16 @@ def organize_fbk_jsons(new_dict,new_obsc_dict,mo,ripf):
     old_dict[mo][ripf] = new_dict
     old_dict['metadata'] = meta
 
+    with open(datadir+'cmip6_amip-p4K_cld_fbks_update.json', 'w') as outfile:
+        json.dump(old_dict, outfile)
+
+
     # Load in the existing file containing pre-computed CMIP6 obscuration-related feedbacks
-    file = datadir+'cmip6_amip-p4K_cld_obsc_fbks.json'
+    if flag == 0:
+        file = datadir+'cmip6_amip-p4K_cld_obsc_fbks.json'
+    else:
+        file = datadir+'cmip6_amip-p4K_cld_obsc_fbks_update.json'
+
     f = open(file,'r')
     old_obsc_dict = json.load(f)
     f.close()
@@ -37,15 +50,22 @@ def organize_fbk_jsons(new_dict,new_obsc_dict,mo,ripf):
     old_obsc_dict[mo][ripf] = new_obsc_dict
     old_obsc_dict['metadata'] = meta
     
+    with open(datadir+'cmip6_amip-p4K_cld_obsc_fbks_update.json', 'w') as outfile:
+        json.dump(old_obsc_dict, outfile)
+
     return(old_dict,old_obsc_dict) # now updated to include info from input dictionary 
 
 
 
 
-def organize_err_jsons(new_dict,mo,ripf):
+def organize_err_jsons(new_dict,mo,ripf,flag):
 
     # Load in the existing file containing pre-computed CMIP6 error metrics
-    file = datadir+'cmip6_amip_cld_errs.json'
+    if flag == 0:
+        file = datadir+'cmip6_amip_cld_errs.json'
+    else:
+        file = datadir+'cmip6_amip_cld_errs_update.json'
+
     f = open(file,'r')
     old_dict = json.load(f)
     f.close()
@@ -70,5 +90,8 @@ def organize_err_jsons(new_dict,mo,ripf):
         # end sfc type loop
     # end region loop   
     old_dict['metadata'] = meta
+
+    with open(datadir+'cmip6_amip_cld_errs_update.json', 'w') as outfile:
+        json.dump(old_dict, outfile)
 
     return(old_dict) # now updated to include info from input dictionary 
