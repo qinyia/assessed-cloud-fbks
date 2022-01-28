@@ -554,10 +554,16 @@ def static_plot(assessed,ecs,models,fbk_names,gen,fig,gs):
 
 
 #######################################################   
-def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmod,figdir):
+def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=False):
 
+    '''
+    flag - onlytest is used to turn off results from other CMIP models.
+
+    '''
+    colors = ['b','r','g','c','m','y','tab:orange','tab:purple','tab:brown']
     # Set a unique marker for your new model
-    MARK[newmod] = '<'
+    for inewmod,newmod in enumerate(newmods):
+        MARK[newmod] = '<'
     
     ##################################################################
     # READ IN CLOUD FEEDBACK VALUES FOR CMIP5
@@ -602,19 +608,41 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmod,figdir):
     gs = gridspec.GridSpec(20, 20)
     ax = plt.subplot(gs[:, :10])
     fbk_names = plot_expert()
-    static_plot(assessed5,ECS5,models5,fbk_names,'5',fig,gs)
-    static_plot(assessed6,ECS6,models6,fbk_names,'6',fig,gs)
+    if not onlytest:
+        static_plot(assessed5,ECS5,models5,fbk_names,'5',fig,gs)
+        static_plot(assessed6,ECS6,models6,fbk_names,'6',fig,gs)
     # highlight your model
-    m = models6.index(newmod)
-    LABEL = newmod+' ['+str(np.round(ECS6[m],1))+' K]'
-    yloc = np.arange(0,2*LN,2)-HEIGHT/2
-    ax.plot(assessed6[m,-1::-1],yloc,ls='-',marker=MARK[newmod],ms=12,color='m',zorder=200,label=LABEL)
-    ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
+    for inewmod,newmod in enumerate(newmods):
+
+        m = models6.index(newmod)
+        #LABEL = newmod.split('.')[-1]+' ['+str(np.round(ECS6[m],1))+' K]'
+        LABEL = newmod.split('.')[-1]
+
+        yloc = np.arange(0,2*LN,2)-HEIGHT/2 - inewmod/7.5
+        if newmod.split('.')[-1] in ['v1','v2','gwenergy']: # only add the stitch line for v1 and v2.
+            lw = 1
+        else:
+            lw = 0
+        ax.plot(assessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=6,color=colors[inewmod],zorder=200,label=LABEL)
+        ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
+
+        ax.barh(yloc,assessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
+
+    if onlytest: # add additional y axis tick labels and vertical reference line x = 0
+        yloc = np.arange(0,2*LN,2)-HEIGHT/2
+        plt.yticks(yloc,fbk_names[-1::-1],fontsize=14)
+        plt.axvline(x=0.0,color='k',ls='-')
+
     ax.set_title('Assessed Cloud Feedback Values [amip-p4K]',fontsize=16)
-    # new axis for labeling all models
-    ax = plt.subplot(gs[:10, 10:12])
-    label_models(ax,models5,models6)
+
+    if not onlytest:
+        #new axis for labeling all models
+        ax = plt.subplot(gs[:10, 10:12])
+        label_models(ax,models5,models6)
+
+
     plt.savefig(figdir+'WCRP_assessed_cld_fbks_amip-p4K.pdf',bbox_inches='tight')
+    print('Done')
 
     ################################################################################################
     # BAR PLOT OF UNASSESSED CLOUD FEEDBACK COMPONENTS
@@ -622,20 +650,43 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmod,figdir):
     fig=plt.figure(figsize=(18,12))
     gs = gridspec.GridSpec(20, 20)
     ax = plt.subplot(gs[:, :10])
-    static_plot(unassessed5,ECS5,models5,ufbk_names5,'5',fig,gs)
-    static_plot(unassessed6,ECS6,models6,ufbk_names6,'6',fig,gs)
+    if not onlytest:
+        static_plot(unassessed5,ECS5,models5,ufbk_names5,'5',fig,gs)
+        static_plot(unassessed6,ECS6,models6,ufbk_names6,'6',fig,gs)
     # highlight your model
-    m = models6.index(newmod)
-    LABEL = newmod+' ['+str(np.round(ECS6[m],1))+' K]'
-    LN = unassessed6.shape[1]
-    yloc = np.arange(0,2*LN,2)-HEIGHT/2
-    ax.plot(unassessed6[m,-1::-1],yloc,ls='-',marker=MARK[newmod],ms=12,color='m',zorder=200,label=LABEL)
-    ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
+    for inewmod,newmod in enumerate(newmods):
+
+        m = models6.index(newmod)
+        #LABEL = newmod.split('.')[-1]+' ['+str(np.round(ECS6[m],1))+' K]'
+        LABEL = newmod.split('.')[-1]
+
+        LN = unassessed6.shape[1]
+
+        yloc = np.arange(0,2*LN,2)-HEIGHT/2 - inewmod/7.5
+        if newmod.split('.')[-1] in ['v1','v2','gwenergy']: # only add the stitch line for v1 and v2.
+            lw = 1
+        else:
+            lw = 0
+
+        ax.plot(unassessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=8,color=colors[inewmod],zorder=200,label=LABEL)
+        ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
+
+        ax.barh(yloc,unassessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
+
+    if onlytest: # add additional y axis tick labels and vertical reference line x = 0
+        yloc = np.arange(0,2*LN,2)-HEIGHT/2
+        plt.yticks(yloc,ufbk_names6[-1::-1],fontsize=14)
+        plt.axvline(x=0.0,color='k',ls='-')
+
     ax.set_title('Unassessed Cloud Feedback Values [amip-p4K]',fontsize=16)
-    # new axis for labeling all models
-    ax = plt.subplot(gs[:10, 10:12])
-    label_models(ax,models5,models6)
+
+    if not onlytest:
+        # new axis for labeling all models
+        ax = plt.subplot(gs[:10, 10:12])
+        label_models(ax,models5,models6)
+
     plt.savefig(figdir+'WCRP_unassessed_cld_fbks_amip-p4K.pdf',bbox_inches='tight')    
+    exit()
     
     ################################################################################################
     # ERROR METRIC OF MODEL AGREEMENT WITH INDIVIDUAL CLOUD FEEDBACKS
@@ -672,8 +723,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmod,figdir):
     plt.plot(RMSE5,assessed5[:,-1],'D',ms=np.sqrt(200),mec='k',mfc='None',zorder=20,label='CMIP5')
     plt.plot(RMSE6,assessed6[:,-1],'o',ms=np.sqrt(275),mec='k',mfc='None',zorder=20,label='CMIP6')
     # highlight your model
-    m = models6.index(newmod)
-    plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec='m',mew=3,mfc='None',zorder=20,label=newmod)   
+    for inewmod,newmod in enumerate(newmods):
+
+        m = models6.index(newmod)
+        plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])   
+
     plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
     plt.xlabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
     plt.ylabel('Total Cloud Feedback [Wm$^{-2}$K$^{-1}$]',fontsize=14)
@@ -718,8 +772,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmod,figdir):
     plt.plot(RMSE5,assessed5[:,-1],'D',ms=np.sqrt(200),mec='k',mfc='None',zorder=20,label='CMIP5')
     plt.plot(RMSE6,assessed6[:,-1],'o',ms=np.sqrt(275),mec='k',mfc='None',zorder=20,label='CMIP6')
     # highlight your model
-    m = models6.index(newmod)
-    plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec='m',mew=3,mfc='None',zorder=20,label=newmod)
+    for inewmod,newmod in enumerate(newmods):
+
+        m = models6.index(newmod)
+        plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])
+
     plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
     plt.xlabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
     plt.xticks(fontsize=12)
@@ -769,8 +826,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmod,figdir):
     plt.plot(E_NET5[:,-1],assessed5[:,-1],'D',ms=np.sqrt(225),mec='C2',mfc='None',zorder=20,label='CMIP5')
     plt.plot(E_NET6[:,-1],assessed6[:,-1],'o',ms=np.sqrt(300),mec='C4',mfc='None',zorder=20,label='CMIP6')
     # highlight your model
-    m = models6.index(newmod)
-    plt.plot(E_NET6[m,-1],assessed6[m,-1],'o',ms=np.sqrt(325),mec='m',mew=3,mfc='None',zorder=20,label=newmod)       
+    for inewmod,newmod in enumerate(newmods):
+
+        m = models6.index(newmod)
+        plt.plot(E_NET6[m,-1],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])       
+
     plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
     LABEL=scatter_label(x,y,models56,models5,False,True)
     plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
@@ -791,8 +851,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmod,figdir):
     plt.plot(E_NET5[:,-1],RMSE5,'D',ms=np.sqrt(225),mec='C2',mfc='None',zorder=20,label='CMIP5')
     plt.plot(E_NET6[:,-1],RMSE6,'o',ms=np.sqrt(300),mec='C4',mfc='None',zorder=20,label='CMIP6')
     # highlight your model
-    m = models6.index(newmod)
-    plt.plot(E_NET6[m,-1],RMSE6[m],'o',ms=np.sqrt(325),mec='m',mew=3,mfc='None',zorder=20,label=newmod)       
+    for inewmod,newmod in enumerate(newmods):
+
+        m = models6.index(newmod)
+        plt.plot(E_NET6[m,-1],RMSE6[m],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])       
+
     plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
     LABEL=scatter_label(x,y,models56,models5,False,True)
     plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
