@@ -557,7 +557,7 @@ def static_plot(assessed,ecs,models,fbk_names,gen,fig,gs):
 
 
 #######################################################   
-def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,ecs_dict56,newmods,figdir,onlytest=False):
+def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=False):
 
     '''
     flag - onlytest is used to turn off results from other CMIP models.
@@ -586,7 +586,6 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,ecs_dict56,newmods,figdir,o
     cld_errs5 = json.load(f)
     f.close()
     
-    """
     ##################################################################
     # READ IN GREGORY ECS VALUES DERIVED IN ZELINKA ET AL (2020) GRL #
     ##################################################################
@@ -595,9 +594,6 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,ecs_dict56,newmods,figdir,o
     f.close()
     ecs_dict5 = ecs['CMIP5']    
     ecs_dict6 = ecs['CMIP6']
-    """
-    ecs_dict5 = ecs_dict56['CMIP5']    
-    ecs_dict6 = ecs_dict56['CMIP6']
     
     # Get the assessed and unassessed feedbacks:
     assessed5,unassessed5,ufbk_names5,ECS5,models5,ripfs5,E_TCA5,E_ctpt5,E_LW5,E_SW5,E_NET5 = get_fbks(cld_fbks5,obsc_cld_fbks5,cld_errs5,ecs_dict5)
