@@ -95,3 +95,18 @@ def organize_err_jsons(new_dict,mo,ripf,flag):
         json.dump(old_dict, outfile)
 
     return(old_dict) # now updated to include info from input dictionary 
+
+
+def organize_ecs_jsons(new_ecs,mo,ripf):
+
+    ##################################################################
+    # READ IN GREGORY ECS VALUES DERIVED IN ZELINKA ET AL (2020) GRL #
+    ##################################################################
+    f = open(datadir+'cmip56_forcing_feedback_ecs.json','r')
+    old_dict = json.load(f)
+    f.close()
+
+    if new_ecs!=None:
+        old_dict['CMIP6'][mo][ripf]['ECS'] = new_ecs
+
+    return(old_dict) # now updated to include info from input dictionary 

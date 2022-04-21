@@ -1,4 +1,5 @@
 import cal_CloudRadKernel as CRK
+import compute_ECS as CE
 import organize_jsons as OJ
 import cld_fbks_ecs_assessment_v3 as dataviz
 import os
@@ -12,6 +13,35 @@ model = 'E3SM'
 institution = 'LLNL'
 variant = 'r1i1p1f1' ### not necessary to be changed generally. 
 grid_label = 'gr1'   ### not necessary to be changed generally. 
+
+# Flag to compute ECS
+# True: compute ECS using abrupt-4xCO2 run
+# False: do not compute, instead rely on ECS value present in the json file (if it exists)
+get_ecs = True
+#================================================================================================
+
+if get_ecs:
+    exps = ['amip','amip-p4K','piControl','abrupt-4xCO2']
+else:
+    exps = ['amip','amip-p4K']
+
+# generate xmls pointing to the cmorized netcdf files 
+os.system('mkdir ../xmls/')
+filenames={}
+for exp in exps:
+    filenames[exp]={}
+    if exp=='amip-p4K':
+        activity = 'CFMIP'
+    else:
+        activity = 'CMIP'
+    if 'amip' in exp:
+        fields = ['tas','rsdscs','rsuscs','wap','clisccp'] # necessary for cloud feedback calcs
+    else:
+        fields = ['tas', 'rlut', 'rsut', 'rsdt'] # needed for ECS calc
+    for field in fields:
+        if field=='clisccp':
+            table='CFmon'
+
 
 # you can set version as a tag for different sensitivity experiments. The following casename for 
 # control and warming will correspond to your version name. @@@@@ change here..
@@ -44,6 +74,8 @@ for iversion,version in enumerate(versions):
             activity = 'CMIP'
             #######  set the control case name @@@@@ change here..
             casename = CL.get_lutable(version,exp)
+
+
         else:
             activity = 'CFMIP'
             #######  set the warming case name @@@@@ change here..
@@ -95,9 +127,15 @@ for iversion,version in enumerate(versions):
     updated_fbk_dict,updated_obsc_fbk_dict = OJ.organize_fbk_jsons(fbk_dict,obsc_fbk_dict,model+'_'+version,variant,flag=iversion)
     updated_err_dict = OJ.organize_err_jsons(err_dict,model+'_'+version,variant,flag=iversion)
 
+    ecs = None
+    if get_ecs:
+        # calculate ECS and add it to the pre-existing json file containing other models' results:
+        ecs = CE.compute_ECS(filenames) 
+    updated_ecs_dict = OJ.organize_ecs_jsons(ecs,model,variant)
+
 # plot this model alongside other models and expert assessment:
 os.system('mkdir ../figures/'+version+'/')
 figdir = '../figures/'+version+'/'
-result = dataviz.make_all_figs(updated_fbk_dict,updated_obsc_fbk_dict,updated_err_dict,newmodels,figdir,onlytest=True)
+result = dataviz.make_all_figs(updated_fbk_dict,updated_obsc_fbk_dict,updated_err_dict,updated_ecs_dict,newmodels,figdir,onlytest=True)
 
 print('Done!')
