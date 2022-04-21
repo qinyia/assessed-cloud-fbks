@@ -1,3 +1,5 @@
 code/__pycache__/
 figures/
 xmls/
+__pycache__/
+*.pyc
