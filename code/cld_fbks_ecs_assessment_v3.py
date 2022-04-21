@@ -557,7 +557,7 @@ def static_plot(assessed,ecs,models,fbk_names,gen,fig,gs):
 
 
 #######################################################   
-def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=False):
+def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,ecs_dict56,newmods,figdir,onlytest=False):
 
     '''
     flag - onlytest is used to turn off results from other CMIP models.
@@ -586,6 +586,7 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
     cld_errs5 = json.load(f)
     f.close()
     
+    """
     ##################################################################
     # READ IN GREGORY ECS VALUES DERIVED IN ZELINKA ET AL (2020) GRL #
     ##################################################################
