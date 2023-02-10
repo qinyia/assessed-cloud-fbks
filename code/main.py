@@ -72,7 +72,7 @@ for iversion,version in enumerate(versions):
             else:
                 table='Amon'
     
-            searchstring = path+'/'+casename+'/'+field+'_????01-????12.nc'
+            searchstring = path+'/'+casename+'/'+field+'_*????01-????12.nc'
             xmlname = '../xmls/'+exp+'.'+model+'.'+field+'.'+version+'.xml'
     
             if os.path.isfile(xmlname):
