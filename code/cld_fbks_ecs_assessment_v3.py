@@ -16,7 +16,7 @@ from datetime import date
 
 HEIGHT=0.45
 #figdir = '../figures/'
-datadir = '../data/'
+datadir = './data/'
 
 #######################################################
 ########### DEFINE COLORS FOR ECS COLORBAR ############
