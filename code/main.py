@@ -7,42 +7,45 @@ import cases_lookup as CL
 import pickle
 import json
 
-# User Input:
+# No need to modify if diagnosing E3SM results
 #================================================================================================
 model = 'E3SM'       
 institution = 'LLNL'
 variant = 'r1i1p1f1' ### not necessary to be changed generally. 
 grid_label = 'gr1'   ### not necessary to be changed generally. 
 
+# User Input:
+#================================================================================================
 machine = 'compy'
+
+# where you save your regridded output from diag_feedback_E3SM package. The same as the run_dir
+# in main-test.py of diag_feedback_E3SM package
 run_dir = '/compyfs/qiny108/colla/'
 
-# you can set version as a tag for different sensitivity experiments. The following casename for 
-# control and warming will correspond to your version name. @@@@@ change here..
+# shortname of sensitivity experiments 
 versions = [
-'v2', 
+'v2test', 
 ]
+
+# set simulation length: (start, end)
+tslice = ("0002-01-01", "0003-12-31")
+
+#================================================================================================
+# Please don't modify anything below...
 
 newmodels = []
 for iversion,version in enumerate(versions):
 
     newmodels.append(model+'_'+version)
 
-    #continue
-
     # directionary of your input model data 
     # [you need to run main.py in diag_feedback_e3sm package first with PreProces = True to get all needed data here.]
     if machine == 'LC':
-        path = '/p/lustre2/qin4/diag_feedback_E3SM_postdata'
+        path = '/p/lustre2/qin4/diag_feedback_E3SM_postdata/'
     elif machine == 'compy':
         path = run_dir+'diag_feedback_E3SM_postdata/'
-
-    
-    # set simulation length: (start, end)
-    tslice = ("0001-01-01", "0005-12-31")
     
     fields = ['tas','rsdscs','rsuscs','OMEGA','FISCCP1_COSP'] # don't change this. 
-    
     
     # generate xmls pointing to the cmorized netcdf files 
     os.system('mkdir ../xmls/')
