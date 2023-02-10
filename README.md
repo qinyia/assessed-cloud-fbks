@@ -7,11 +7,10 @@ This code performs the analysis of [Zelinka et al. (2022)](https://agupubs.onlin
 
 ## Instructions
 To use, follow these steps:
-1. Install CDAT via conda following [these instructions](https://github.com/CDAT/cdat/wiki/install#installing-latest-cdat---821)
 
-2. Activate this environment:
+1. Activate the environment for diag_feedback_E3SM:
 ```
-conda activate cdat
+conda activate diagfbk
 ```
 3. Clone this repo:
 ```
@@ -19,18 +18,26 @@ git clone https://github.com/qinyia/assessed-cloud-fbks.git
 ```
 4. cd to assessed-cloud-fbks/code/
 
-5. In main.py, update the "User Input" section so it points to your model's amip and amip-p4K files.
+5. link the cases_lookup.py from diag_feedback_E3SM:
+```
+ln -s /dir/of/diag_feedback_E3SM/cases_lookup.py .
+```
 
-6. Run the code:
+6. In main.py, update the "User Input" section so it points to your model's amip and amip-p4K files.
+
+7. Run the code:
 ```
 python main.py
 ```
-7. Inspect the generated figures and tables in the /figures/ directory.
+
+8. Inspect the generated figures and tables in the /figures/[version]/ directory.
 
 
-history: 
-Oct 19, 2021: modified by Yi Qin to read raw model data.
+## History
+- Oct 19, 2021: modified by Yi Qin to read raw E3SM model data.
+
 =======
+
 ## References
 - Zelinka et al. (2022): [Evaluating climate models’ cloud feedbacks against expert judgement](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2021JD035198), <em>J. Geophys. Res.</em>, 127, e2021JD035198, doi:10.1029/2021JD035198.
 
