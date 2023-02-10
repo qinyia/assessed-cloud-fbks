@@ -117,5 +117,4 @@ result = dataviz.make_all_figs(updated_fbk_dict,updated_obsc_fbk_dict,updated_er
 os.system('mv ../data ../data'+versions[-1])
 os.system('cp -rp ../data_bak ../data')
 
-
 print('Done!')
