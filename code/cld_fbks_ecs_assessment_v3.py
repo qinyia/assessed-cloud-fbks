@@ -619,10 +619,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
 
         m = models6.index(newmod)
         #LABEL = newmod.split('.')[-1]+' ['+str(np.round(ECS6[m],1))+' K]'
-        LABEL = newmod.split('.')[-1]
+        #LABEL = newmod.split('.')[-1]
+        LABEL = newmod
 
         yloc = np.arange(0,2*LN,2)-HEIGHT/2 - inewmod/7.5
-        if newmod.split('.')[-1] in ['v1','v2','gwenergy']: # only add the stitch line for v1 and v2.
+        if LABEL in ['v1','v2','gwenergy']: # only add the stitch line for v1 and v2.
             lw = 1
         else:
             lw = 0
