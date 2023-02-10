@@ -17,24 +17,31 @@ conda activate diagfbk
 git clone https://github.com/qinyia/assessed-cloud-fbks.git
 ```
 4. cd to assessed-cloud-fbks/code/
+```
+cd assessed-cloud-fbks/code/
+```
 
 5. link the cases_lookup.py from diag_feedback_E3SM:
 ```
 ln -s /dir/of/diag_feedback_E3SM/cases_lookup.py .
 ```
 
-6. In main.py, update the "User Input" section so it points to your model's amip and amip-p4K files.
+6. go back to main dir: 
+```
+cd ..
+```
 
-7. Run the code:
+7. Run the code: In main.py, update the "User Input" section so it points to your model's amip and amip-p4K files.
 ```
 python main.py
 ```
 
-8. Inspect the generated figures and tables in the /figures/[version]/ directory.
+8. Inspect the generated figures and tables in the /figures/[version]/ directory or webdir [www/username/xxx] if you work on Compy.
 
 
-## History
-- Oct 19, 2021: modified by Yi Qin to read raw E3SM model data.
+## Modification history by Yi Qin
+- Oct 19, 2021: make it work on reading raw E3SM model data.
+- Feb 10, 2023: cleanup and move main.py to the main dir.
 
 =======
 
