@@ -24,6 +24,9 @@ machine = 'compy'
 # in main-test.py of diag_feedback_E3SM package
 run_dir = '/compyfs/qiny108/colla/'
 
+# whether you want to have results from other CMIP models: True: yes; False: no
+AddOtherCMIPs = True
+
 if machine == 'compy':
     webdir = '/compyfs/www/qiny108/colla/assessed-cloud-fbks/'
 
@@ -118,7 +121,7 @@ for iversion,version in enumerate(versions):
 if not os.path.isdir('figures/'+versions[-1]+'/'):
     os.system('mkdir figures/'+versions[-1]+'/')
 figdir = 'figures/'+versions[-1]+'/'
-result = dataviz.make_all_figs(updated_fbk_dict,updated_obsc_fbk_dict,updated_err_dict,newmodels,figdir,onlytest=False)
+result = dataviz.make_all_figs(updated_fbk_dict,updated_obsc_fbk_dict,updated_err_dict,newmodels,figdir,onlytest=AddOtherCMIPs)
 
 if not os.path.isdir('data'+versions[-1]):
     os.rename("data", "data"+versions[-1])
