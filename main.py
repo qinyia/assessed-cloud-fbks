@@ -33,10 +33,8 @@ if machine == 'compy':
 # shortname of sensitivity experiments 
 versions = [
 'v2test', 
+'v2test2',
 ]
-
-# set simulation length: (start, end)
-tslice = ("0002-01-01", "0003-12-31")
 
 #================================================================================================
 # Please don't modify anything below...
@@ -64,11 +62,11 @@ for iversion,version in enumerate(versions):
         if exp=='amip':
             activity = 'CMIP'
             #######  set the control case name @@@@@ change here..
-            casename = CL.get_lutable(version,exp)
+            casename,yearS_CTL,yearE_CTL = CL.get_lutable(version,exp)
         else:
             activity = 'CFMIP'
             #######  set the warming case name @@@@@ change here..
-            casename = CL.get_lutable(version,exp)
+            casename,yearS_P3K,yearE_P4K = CL.get_lutable(version,exp)
    
         print('casename=',casename)
     
@@ -90,6 +88,10 @@ for iversion,version in enumerate(versions):
     
             filenames[exp][field] = xmlname
 
+
+    # set simulation length: (start, end)
+    tslice = ("{:04d}".format(yearS_CTL)+"-01-01", "{:04d}".format(yearE_CTL)+"-12-31")
+    print('tslice=',tslice)
 
     # calculate all feedback components and Klein et al (2013) error metrics:
     fname = 'data/backup_dict_'+version+'.pickle'
