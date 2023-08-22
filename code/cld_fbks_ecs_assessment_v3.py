@@ -16,7 +16,7 @@ from datetime import date
 
 HEIGHT=0.45
 #figdir = '../figures/'
-datadir = './data/'
+datadir = './data_CFBK/'
 
 #######################################################
 ########### DEFINE COLORS FOR ECS COLORBAR ############
@@ -557,10 +557,10 @@ def static_plot(assessed,ecs,models,fbk_names,gen,fig,gs):
 
 
 #######################################################   
-def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=False):
+def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIPs=False):
 
     '''
-    flag - onlytest is used to turn off results from other CMIP models.
+    flag - AddOtherCMIPs is used to turn on results from other CMIP models.
 
     '''
     colors = ['b','r','g','c','m','y','tab:orange','tab:purple','tab:brown']
@@ -611,7 +611,7 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
     gs = gridspec.GridSpec(20, 20)
     ax = plt.subplot(gs[:, :10])
     fbk_names = plot_expert()
-    if not onlytest:
+    if AddOtherCMIPs:
         static_plot(assessed5,ECS5,models5,fbk_names,'5',fig,gs)
         static_plot(assessed6,ECS6,models6,fbk_names,'6',fig,gs)
     # highlight your model
@@ -630,16 +630,17 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
         ax.plot(assessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=6,color=colors[inewmod],zorder=200,label=LABEL)
         ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
 
-        ax.barh(yloc,assessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
+        #ax.barh(yloc,assessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
-    if onlytest: # add additional y axis tick labels and vertical reference line x = 0
+    if not AddOtherCMIPs: # add additional y axis tick labels and vertical reference line x = 0
         yloc = np.arange(0,2*LN,2)-HEIGHT/2
         plt.yticks(yloc,fbk_names[-1::-1],fontsize=14)
         plt.axvline(x=0.0,color='k',ls='-')
+        plt.xticks(fontsize=14)
 
     ax.set_title('Assessed Cloud Feedback Values [amip-p4K]',fontsize=16)
 
-    if not onlytest:
+    if AddOtherCMIPs:
         #new axis for labeling all models
         ax = plt.subplot(gs[:10, 10:12])
         label_models(ax,models5,models6)
@@ -654,7 +655,7 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
     fig=plt.figure(figsize=(18,12))
     gs = gridspec.GridSpec(20, 20)
     ax = plt.subplot(gs[:, :10])
-    if not onlytest:
+    if AddOtherCMIPs:
         static_plot(unassessed5,ECS5,models5,ufbk_names5,'5',fig,gs)
         static_plot(unassessed6,ECS6,models6,ufbk_names6,'6',fig,gs)
     # highlight your model
@@ -675,16 +676,17 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
         ax.plot(unassessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=8,color=colors[inewmod],zorder=200,label=LABEL)
         ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
 
-        ax.barh(yloc,unassessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
+        #ax.barh(yloc,unassessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
-    if onlytest: # add additional y axis tick labels and vertical reference line x = 0
+    if not AddOtherCMIPs: # add additional y axis tick labels and vertical reference line x = 0
         yloc = np.arange(0,2*LN,2)-HEIGHT/2
         plt.yticks(yloc,ufbk_names6[-1::-1],fontsize=14)
         plt.axvline(x=0.0,color='k',ls='-')
+        plt.xticks(fontsize=14)
 
     ax.set_title('Unassessed Cloud Feedback Values [amip-p4K]',fontsize=16)
 
-    if not onlytest:
+    if AddOtherCMIPs:
         # new axis for labeling all models
         ax = plt.subplot(gs[:10, 10:12])
         label_models(ax,models5,models6)
