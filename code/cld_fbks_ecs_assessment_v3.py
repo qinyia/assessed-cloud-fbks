@@ -612,13 +612,13 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
         #LABEL = newmod.split('.')[-1]+' ['+str(np.round(ECS6[m],1))+' K]'
         LABEL = newmod
 
-        yloc = np.arange(0,2*LN,2)-HEIGHT/2 - inewmod/7.5
+        yloc = np.arange(0,2*LN,2)-HEIGHT/2 #- inewmod/7.5
         if LABEL in ['v1','v2','gwenergy']: # only add the stitch line for v1 and v2.
             lw = 1
         else:
             lw = 0
-        ax.plot(assessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=6,color=colors[inewmod],zorder=200,label=LABEL)
-        ax.legend(loc=0,fontsize=10,fancybox=True, framealpha=1)
+        ax.plot(assessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=6,color='blue',zorder=200,label=LABEL)
+        #ax.legend(loc=0,fontsize=10,fancybox=True, framealpha=1)
 
         #ax.barh(yloc,assessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
@@ -659,14 +659,14 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
 
         LN = unassessed6.shape[1]
 
-        yloc = np.arange(0,2*LN,2)-HEIGHT/2 - inewmod/7.5
+        yloc = np.arange(0,2*LN,2)-HEIGHT/2 #- inewmod/7.5
         if newmod.split('.')[-1] in ['v1','v2','gwenergy']: # only add the stitch line for v1 and v2.
             lw = 1
         else:
             lw = 0
 
-        ax.plot(unassessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=8,color=colors[inewmod],zorder=200,label=LABEL)
-        ax.legend(loc=0,fontsize=10,fancybox=True, framealpha=1)
+        ax.plot(unassessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=8,color='blue',zorder=200,label=LABEL)
+        #ax.legend(loc=0,fontsize=10,fancybox=True, framealpha=1)
 
         #ax.barh(yloc,unassessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
@@ -716,11 +716,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     for inewmod,newmod in enumerate(newmods):
 
         m = models6.index(newmod)
-        plt.plot(E_NET6[m,-1],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])       
+        plt.plot(E_NET6[m,-1],assessed6[m,-1],'o',ms=np.sqrt(325),mec='blue',mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])       
 
-    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
-    LABEL=scatter_label(x,y,models56,models5,False,True)
-    plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
+    #plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
+    #LABEL=scatter_label(x,y,models56,models5,False,True)
+    #plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
     plt.ylabel(fbk_names[-1]+' [Wm$^{-2}$]',fontsize=14)
     plt.xlabel('$\mathrm{E_{NET}}$',fontsize=14)
     plt.title('a',fontsize=16,loc='left')
@@ -775,7 +775,8 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
             
             for ic in range(len(models)):
                 cnt+=1
-                LM = letters[cnt]+') '+models[ic]
+                #LM = letters[cnt]+') '+models[ic]
+                LM = str(ic)+') '+models[ic]
                 data=[LM,ripfs[ic]]
                 for fb in range(len(fbk_names)):
                     this = assessed[ic,fb]
