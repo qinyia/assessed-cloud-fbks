@@ -16,7 +16,7 @@ from datetime import date
 
 HEIGHT=0.45
 #figdir = '../figures/'
-datadir = './data/'
+datadir = './data_ERFaci/'
 
 #######################################################
 ########### DEFINE COLORS FOR ECS COLORBAR ############
@@ -87,9 +87,9 @@ def get_expert_assessed_fbks():
     'Land Cloud Amount',
     'Middle Latitude Marine Low-Cloud Amount',
     'High Latitude Low-Cloud Optical Depth',
-    'Implied Unassessed Cloud Feedbacks',
-    'Sum of Assessed Cloud Feedbacks',
-    'Total Cloud Feedback']
+    'Implied Unassessed ERFaci',
+    'Sum of Assessed ERFaci',
+    'Total ERFaci']
     
     expert_hi_alt,   err_expert_hi_alt =    0.20, 0.10
     expert_trop_lo,  err_expert_trop_lo =   0.25, 0.16
@@ -109,12 +109,11 @@ def get_expert_assessed_fbks():
 
        
 #######################################################       
-def get_fbks(cld_fbks,obsc_cld_fbks,cld_errs,ecs_dict):
+def get_fbks(cld_fbks,obsc_cld_fbks,cld_errs):
     # Load in all the json files and get assessed/unassessed feedbacks
     assessed = []
     models = []
     ripfs = []
-    ECS = []    
 
     cnt=-1
     MODELS = list(cld_fbks.keys())
@@ -180,22 +179,9 @@ def get_fbks(cld_fbks,obsc_cld_fbks,cld_errs,ecs_dict):
                 mo2 = 'CanESM2'
             else:
                 mo2 = mo
-            if mo2 in ecs_dict.keys():
-                if ripf in ecs_dict[mo2].keys():
-                    ripf2 = ripf
-                else:
-                    ripf2 = list(ecs_dict[mo2].keys())[0] # take the first available ripf
-                    print(mo+': Using ECS from '+ripf2+' rather than '+ripf)
-            try:
-                ecs = ecs_dict[mo2][ripf2]['ECS']
-            except:
-                print('No ECS for '+mo2+'.'+ripf2)
-                ecs = np.nan
-
-            ECS.append(ecs)
         
         # (un)assessed is size [models,fbk_types]
-    return (assessed,unassessed,ufbk_names,np.array(ECS),models,ripfs,E_TCA,E_ctpt,E_LW,E_SW,E_NET)    
+    return (assessed,unassessed,ufbk_names,models,ripfs,E_TCA,E_ctpt,E_LW,E_SW,E_NET)    
 
     
 #######################################################   
@@ -541,7 +527,7 @@ def static_plot(assessed,ecs,models,fbk_names,gen,fig,gs):
         plt.yticks(yloc,fbk_names[-1::-1],fontsize=14)
         plt.xticks(fontsize=14)
         plt.axvline(x=0.0,color='k',ls='-')
-        plt.xlabel('Wm$^{-2}$K$^{-1}$',fontsize=14)
+        plt.xlabel('Wm$^{-2}$',fontsize=14)
         plt.ylim(-1.5+HEIGHT,Y-HEIGHT/2) 
         if assessed.max()<0.6:
             plt.xlim(-0.3,0.3)
@@ -557,10 +543,10 @@ def static_plot(assessed,ecs,models,fbk_names,gen,fig,gs):
 
 
 #######################################################   
-def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=False):
+def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIPs=False):
 
     '''
-    flag - onlytest is used to turn off results from other CMIP models.
+    flag - AddOtherCMIPs is used to turn on results from other CMIP models.
 
     '''
     colors = ['b','r','g','c','m','y','tab:orange','tab:purple','tab:brown']
@@ -571,33 +557,25 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
     ##################################################################
     # READ IN CLOUD FEEDBACK VALUES FOR CMIP5
     ##################################################################
-    file = datadir+'cmip5_amip4K_cld_fbks.json'
+    file = datadir+'E3SMv2_PD_ERFaci.json'
     f = open(file,'r')
     cld_fbks5 = json.load(f)
     f.close()
 
-    file = datadir+'cmip5_amip4K_cld_obsc_fbks.json'
+    file = datadir+'E3SMv2_PD_ERFaci_obsc.json'
     f = open(file,'r')
     obsc_cld_fbks5 = json.load(f)
     f.close()
 
-    file = datadir+'cmip5_amip_cld_errs.json'
+    file = datadir+'E3SMv2_PD_errs.json'
     f = open(file,'r')
     cld_errs5 = json.load(f)
     f.close()
-    
-    ##################################################################
-    # READ IN GREGORY ECS VALUES DERIVED IN ZELINKA ET AL (2020) GRL #
-    ##################################################################
-    f = open(datadir+'cmip56_forcing_feedback_ecs.json','r')
-    ecs = json.load(f)
-    f.close()
-    ecs_dict5 = ecs['CMIP5']    
-    ecs_dict6 = ecs['CMIP6']
+
     
     # Get the assessed and unassessed feedbacks:
-    assessed5,unassessed5,ufbk_names5,ECS5,models5,ripfs5,E_TCA5,E_ctpt5,E_LW5,E_SW5,E_NET5 = get_fbks(cld_fbks5,obsc_cld_fbks5,cld_errs5,ecs_dict5)
-    assessed6,unassessed6,ufbk_names6,ECS6,models6,ripfs6,E_TCA6,E_ctpt6,E_LW6,E_SW6,E_NET6 = get_fbks(cld_fbks6,obsc_cld_fbks6,cld_errs6,ecs_dict6)
+    assessed5,unassessed5,ufbk_names5,models5,ripfs5,E_TCA5,E_ctpt5,E_LW5,E_SW5,E_NET5 = get_fbks(cld_fbks5,obsc_cld_fbks5,cld_errs5)
+    assessed6,unassessed6,ufbk_names6,models6,ripfs6,E_TCA6,E_ctpt6,E_LW6,E_SW6,E_NET6 = get_fbks(cld_fbks6,obsc_cld_fbks6,cld_errs6)
     LN = assessed6.shape[1] # number of feedback categories
     
     ################################################################################################
@@ -607,11 +585,24 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
     # 3) add something to the legend that makes it clear what the range bars are (1 sd / 2sd or 66% / 5-95%)
     ################################################################################################
 
-    fig=plt.figure(figsize=(18,12))
+    #fig=plt.figure(figsize=(18,12))
+    fig=plt.figure(figsize=(18,10))
+
     gs = gridspec.GridSpec(20, 20)
     ax = plt.subplot(gs[:, :10])
-    fbk_names = plot_expert()
-    if not onlytest:
+#    fbk_names = plot_expert()
+    fbk_names=[
+    'High-Cloud Altitude',
+    'Tropical Marine Low-Cloud',
+    'Tropical Anvil Cloud Area',
+    'Land Cloud Amount',
+    'Middle Latitude Marine Low-Cloud Amount',
+    'High Latitude Low-Cloud Optical Depth',
+    'Implied Unassessed ERFaci',
+    'Sum of Assessed ERFaci',
+    'Total ERFaci']
+
+    if AddOtherCMIPs:
         static_plot(assessed5,ECS5,models5,fbk_names,'5',fig,gs)
         static_plot(assessed6,ECS6,models6,fbk_names,'6',fig,gs)
     # highlight your model
@@ -619,7 +610,6 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
 
         m = models6.index(newmod)
         #LABEL = newmod.split('.')[-1]+' ['+str(np.round(ECS6[m],1))+' K]'
-        #LABEL = newmod.split('.')[-1]
         LABEL = newmod
 
         yloc = np.arange(0,2*LN,2)-HEIGHT/2 - inewmod/7.5
@@ -628,33 +618,36 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
         else:
             lw = 0
         ax.plot(assessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=6,color=colors[inewmod],zorder=200,label=LABEL)
-        ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
+        ax.legend(loc=0,fontsize=10,fancybox=True, framealpha=1)
 
-        ax.barh(yloc,assessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
+        #ax.barh(yloc,assessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
-    if onlytest: # add additional y axis tick labels and vertical reference line x = 0
+    if not AddOtherCMIPs: # add additional y axis tick labels and vertical reference line x = 0
         yloc = np.arange(0,2*LN,2)-HEIGHT/2
         plt.yticks(yloc,fbk_names[-1::-1],fontsize=14)
         plt.axvline(x=0.0,color='k',ls='-')
+        plt.xticks(fontsize=14)
 
-    ax.set_title('Assessed Cloud Feedback Values [amip-p4K]',fontsize=16)
+    ax.set_title('ERFaci Values [PD-PI]',fontsize=16)
 
-    if not onlytest:
+    if AddOtherCMIPs:
         #new axis for labeling all models
         ax = plt.subplot(gs[:10, 10:12])
         label_models(ax,models5,models6)
 
 
-    plt.savefig(figdir+'WCRP_assessed_cld_fbks_amip-p4K.pdf',bbox_inches='tight')
+    plt.savefig(figdir+'E3SMv2_assessed_ERFaci_amip-PD.pdf',bbox_inches='tight')
     print('Done')
 
     ################################################################################################
     # BAR PLOT OF UNASSESSED CLOUD FEEDBACK COMPONENTS
     ################################################################################################
-    fig=plt.figure(figsize=(18,12))
+    #fig=plt.figure(figsize=(18,12))
+    fig=plt.figure(figsize=(18,10))
+
     gs = gridspec.GridSpec(20, 20)
     ax = plt.subplot(gs[:, :10])
-    if not onlytest:
+    if AddOtherCMIPs:
         static_plot(unassessed5,ECS5,models5,ufbk_names5,'5',fig,gs)
         static_plot(unassessed6,ECS6,models6,ufbk_names6,'6',fig,gs)
     # highlight your model
@@ -673,32 +666,28 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
             lw = 0
 
         ax.plot(unassessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=8,color=colors[inewmod],zorder=200,label=LABEL)
-        ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
+        ax.legend(loc=0,fontsize=10,fancybox=True, framealpha=1)
 
-        ax.barh(yloc,unassessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
+        #ax.barh(yloc,unassessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
-    if onlytest: # add additional y axis tick labels and vertical reference line x = 0
+    if not AddOtherCMIPs: # add additional y axis tick labels and vertical reference line x = 0
         yloc = np.arange(0,2*LN,2)-HEIGHT/2
         plt.yticks(yloc,ufbk_names6[-1::-1],fontsize=14)
         plt.axvline(x=0.0,color='k',ls='-')
+        plt.xticks(fontsize=14)
 
-    ax.set_title('Unassessed Cloud Feedback Values [amip-p4K]',fontsize=16)
+    ax.set_title('ERFaci Values [PD-PI]',fontsize=16)
 
-    if not onlytest:
+    if AddOtherCMIPs:
         # new axis for labeling all models
         ax = plt.subplot(gs[:10, 10:12])
         label_models(ax,models5,models6)
 
-    plt.savefig(figdir+'WCRP_unassessed_cld_fbks_amip-p4K.pdf',bbox_inches='tight')    
-    
+    plt.savefig(figdir+'E3SMv2_unassessed_ERFaci_amip-PD.pdf',bbox_inches='tight')    
+
     ################################################################################################
     # ERROR METRIC OF MODEL AGREEMENT WITH INDIVIDUAL CLOUD FEEDBACKS
     ################################################################################################
-    expert_cld_fbks,err_expert_cld_fbks,fbk_names =  get_expert_assessed_fbks()
-    serr = (assessed5 - expert_cld_fbks)**2
-    RMSE5 = np.sqrt(np.average(serr[:,:-3],1)) # average taken over all but last 3 feedbacks, which are sum_assessed, true_total, and unassessed
-    serr = (assessed6 - expert_cld_fbks)**2
-    RMSE6 = np.sqrt(np.average(serr[:,:-3],1)) # average taken over all but last 3 feedbacks, which are sum_assessed, true_total, and unassessed
 
     assessed56 = np.append(assessed5,assessed6,axis=0)
     unassessed56 = np.append(unassessed5,unassessed6,axis=0)
@@ -707,113 +696,8 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
     E_LW56 = np.append(E_LW5,E_LW6,axis=0)
     E_SW56 = np.append(E_SW5,E_SW6,axis=0)
     E_NET56 = np.append(E_NET5,E_NET6,axis=0)
-    RMSE56 = np.append(RMSE5,RMSE6)
-    ECS56 = np.append(ECS5,ECS6)
     models56 = np.append(models5,models6)
-    inds = np.argsort(RMSE56)
-
-    ######################################################
-    # Plot RMSE vs total cloud feedback:
-    ######################################################
-    plt.figure(figsize=(18,12))
-    gs = gridspec.GridSpec(10, 24)
-
-    # Color-code by ECS
-    ax = plt.subplot(gs[:4, :9])
-    plt.scatter(RMSE5,assessed5[:,-1],s=200,c=ECS5,marker='D',zorder=10,cmap=CMAP0, norm=NORM0)
-    plt.scatter(RMSE6,assessed6[:,-1],s=275,c=ECS6,marker='o',zorder=10,cmap=CMAP0, norm=NORM0)
-    # plot again with no fill color so all symbols are present
-    plt.plot(RMSE5,assessed5[:,-1],'D',ms=np.sqrt(200),mec='k',mfc='None',zorder=20,label='CMIP5')
-    plt.plot(RMSE6,assessed6[:,-1],'o',ms=np.sqrt(275),mec='k',mfc='None',zorder=20,label='CMIP6')
-    # highlight your model
-    for inewmod,newmod in enumerate(newmods):
-
-        m = models6.index(newmod)
-        plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])   
-
-    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
-    plt.xlabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
-    plt.ylabel('Total Cloud Feedback [Wm$^{-2}$K$^{-1}$]',fontsize=14)
-    plt.xticks(fontsize=12)
-    plt.yticks(fontsize=12)
-    # put horizontal shading for assessed total cloud feedback
-    horiz_shade(expert_cld_fbks[-1],err_expert_cld_fbks[-1],0.055)
-    plt.xlim(0.05,0.15)
-    plt.ylim(-0.35,1.25)
-    plt.title('a',fontsize=16,loc='left')
-    # Label each model:
-    x=RMSE56
-    y=assessed56[:,-1]
-    cnt=0
-    for im,model in enumerate(models56):
-        cnt+=1
-        if np.ma.is_masked(x[im]):
-            continue
-        if model in models5:
-            LETTER = string.ascii_lowercase[im]
-        else:
-            LETTER = string.ascii_uppercase[im]
-        COLOR='k'
-        if ECS56[im]<3.5 or ECS56[im]>5:
-            COLOR='w'
-        ax.text(x[im],y[im],LETTER,ha='center',va='center',color=COLOR,fontsize=10,fontweight='bold',zorder=30)    
-    # create a second axes for the colorbar
-    ax2 = plt.subplot(gs[:4, 9:10])
-    cb = mpl.colorbar.ColorbarBase(ax2, cmap=CMAP0, norm=NORM0,spacing='proportional', ticks=BOUNDS0, boundaries=BOUNDS0)
-    cb.ax.tick_params(labelsize=14)
-    ax2.set_ylabel('ECS [K]', size=14)
-
-    # Color-code by E_NET
-    KEM_CMAP = plt.cm.magma_r  # define the colormap
-    KEM_BOUNDS = np.arange(0.7,1.9,0.15)
-    KEM_NORM = mpl.colors.BoundaryNorm(KEM_BOUNDS, KEM_CMAP.N) 
-
-    ax = plt.subplot(gs[:4, 12:21])
-    plt.scatter(RMSE5,assessed5[:,-1],s=200,c=E_NET5[:,-1],marker='D',zorder=10,cmap=KEM_CMAP, norm=KEM_NORM)
-    plt.scatter(RMSE6,assessed6[:,-1],s=275,c=E_NET6[:,-1],marker='o',zorder=10,cmap=KEM_CMAP, norm=KEM_NORM)
-    # plot again with no fill color so all symbols are present
-    plt.plot(RMSE5,assessed5[:,-1],'D',ms=np.sqrt(200),mec='k',mfc='None',zorder=20,label='CMIP5')
-    plt.plot(RMSE6,assessed6[:,-1],'o',ms=np.sqrt(275),mec='k',mfc='None',zorder=20,label='CMIP6')
-    # highlight your model
-    for inewmod,newmod in enumerate(newmods):
-
-        m = models6.index(newmod)
-        plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])
-
-    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
-    plt.xlabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
-    plt.xticks(fontsize=12)
-    plt.yticks(fontsize=12)
-    # put horizontal shading for assessed total cloud feedback
-    horiz_shade(expert_cld_fbks[-1],err_expert_cld_fbks[-1],0.055)
-    plt.xlim(0.05,0.15)
-    plt.ylim(-0.35,1.25)
-    plt.title('b',fontsize=16,loc='left')
-    # Label each model:
-    x=RMSE56
-    y=assessed56[:,-1]
-    cnt=0
-    for im,model in enumerate(models56):
-        cnt+=1
-        if np.ma.is_masked(x[im]):
-            continue
-        if model in models5:
-            LETTER = string.ascii_lowercase[im]
-        else:
-            LETTER = string.ascii_uppercase[im]
-        COLOR='k'
-        if E_NET56[im,-1]>1.15:
-            COLOR='w'
-        ax.text(x[im],y[im],LETTER,ha='center',va='center',color=COLOR,fontsize=10,fontweight='bold',zorder=30)
-    # create a second axes for the colorbar
-    ax2 = plt.subplot(gs[:4, 21:22])
-    cb = mpl.colorbar.ColorbarBase(ax2, cmap=KEM_CMAP, norm=KEM_NORM,spacing='proportional', ticks=KEM_BOUNDS, boundaries=KEM_BOUNDS)
-    cb.ax.tick_params(labelsize=14)
-    ax2.set_ylabel('$\mathrm{E_{NET}}$', size=14)
-    plt.savefig(figdir+'WCRP_assessed_RMSE_v_cldfbk2_amip-p4K.pdf',bbox_inches='tight')
-
-
-
+    
     ######################################################
     # Plot Klein error metrics vs cloud feedback & RMSE:
     ######################################################    
@@ -826,8 +710,8 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
     x = np.ma.masked_invalid(X)
     Y = assessed56[:,-1]
     y = np.ma.masked_where(x.mask,Y)
-    plt.plot(E_NET5[:,-1],assessed5[:,-1],'D',ms=np.sqrt(225),mec='C2',mfc='None',zorder=20,label='CMIP5')
-    plt.plot(E_NET6[:,-1],assessed6[:,-1],'o',ms=np.sqrt(300),mec='C4',mfc='None',zorder=20,label='CMIP6')
+    #plt.plot(E_NET5[:,-1],assessed5[:,-1],'D',ms=np.sqrt(225),mec='C2',mfc='None',zorder=20,label='CMIP5')
+    #plt.plot(E_NET6[:,-1],assessed6[:,-1],'o',ms=np.sqrt(300),mec='C4',mfc='None',zorder=20,label='CMIP6')
     # highlight your model
     for inewmod,newmod in enumerate(newmods):
 
@@ -837,81 +721,55 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
     plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
     LABEL=scatter_label(x,y,models56,models5,False,True)
     plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
-    plt.ylabel(fbk_names[-1]+' [Wm$^{-2}$K$^{-1}$]',fontsize=14)
+    plt.ylabel(fbk_names[-1]+' [Wm$^{-2}$]',fontsize=14)
     plt.xlabel('$\mathrm{E_{NET}}$',fontsize=14)
     plt.title('a',fontsize=16,loc='left')
     # put horizontal shading for assessed total cloud feedback
-    horiz_shade(expert_cld_fbks[-1],err_expert_cld_fbks[-1],0.65)
-    plt.ylim(-0.4,1.2)
-    plt.xlim(0.60,1.65)
+    #horiz_shade(expert_cld_fbks[-1],err_expert_cld_fbks[-1],0.65)
+    #plt.ylim(-0.4,1.2)
+    #plt.xlim(0.60,1.65)
 
-    # Plot E_NET vs cloud feedback RMSE:
-    ax = plt.subplot(gs[:4, 12:21])
-    X = np.append(E_NET5[:,-1],E_NET6[:,-1],axis=0)
-    x = np.ma.masked_invalid(X)
-    Y = RMSE56
-    y = np.ma.masked_where(x.mask,Y)
-    plt.plot(E_NET5[:,-1],RMSE5,'D',ms=np.sqrt(225),mec='C2',mfc='None',zorder=20,label='CMIP5')
-    plt.plot(E_NET6[:,-1],RMSE6,'o',ms=np.sqrt(300),mec='C4',mfc='None',zorder=20,label='CMIP6')
-    # highlight your model
-    for inewmod,newmod in enumerate(newmods):
-
-        m = models6.index(newmod)
-        plt.plot(E_NET6[m,-1],RMSE6[m],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])       
-
-    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
-    LABEL=scatter_label(x,y,models56,models5,False,True)
-    plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
-    plt.ylabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
-    plt.xlabel('$\mathrm{E_{NET}}$',fontsize=14)
-    plt.title('b',fontsize=16,loc='left')
-    plt.ylim(0.04,0.15)
-    plt.xlim(0.60,1.65)
-    plt.savefig(figdir+'WCRP_totcldfbks2_v_E_NET_amip-p4K.pdf',bbox_inches='tight')
+    plt.savefig(figdir+'E3SMv2_ERFaci_v_E_NET_amip-PD.pdf',bbox_inches='tight')
  
 
     #######################################################
     # PRINT OUT THE TABLE OF EVERYTHING:
     #######################################################
 
-    # Determine min and max of the likely (66%) and very likely (90%) range of expert judgement
-    expert_min66 = expert_cld_fbks - 0.95*err_expert_cld_fbks
-    expert_max66 = expert_cld_fbks + 0.95*err_expert_cld_fbks
-    expert_min90 = expert_cld_fbks - 1.64*err_expert_cld_fbks
-    expert_max90 = expert_cld_fbks + 1.64*err_expert_cld_fbks
+    ## Determine min and max of the likely (66%) and very likely (90%) range of expert judgement
+    #expert_min66 = expert_cld_fbks - 0.95*err_expert_cld_fbks
+    #expert_max66 = expert_cld_fbks + 0.95*err_expert_cld_fbks
+    #expert_min90 = expert_cld_fbks - 1.64*err_expert_cld_fbks
+    #expert_max90 = expert_cld_fbks + 1.64*err_expert_cld_fbks
 
     # ASSESSED
-    fbk_table = figdir+'CMIP56_assessed_cld_fbks_WCRP.txt'
+    fbk_table = figdir+'E3SMv2_assessed_ERFaci.txt'
     dash = '-' * 170
     with open(fbk_table, "w") as f:
         print(dash, file=f)
-        print('amip-p4K vs WCRP Assessed Cloud Feedbacks', file=f)
+        print('E3SMv2 Assessed ERFaci', file=f)
         print(dash, file=f)
         print('Date modified: '+str(date.today()), file=f)
         print('Contact: Mark D. Zelinka [zelinka1@llnl.gov]', file=f)
         print(dash, file=f)
-        data=['Model','Variant','Hi.Alt','Marine.Lo','Anvil','Land.Amt','Midlat.Amt','Hilat.Tau','Unassessed','Assessed','Total','RMSE','E_NET','ECS']
-        print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
-            format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12],data[13]), file=f)
+        data=['Model','Variant','Hi.Alt','Marine.Lo','Anvil','Land.Amt','Midlat.Amt','Hilat.Tau','Unassessed','Assessed','Total','E_NET']
+        print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
+            format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11]), file=f)
         print(dash, file=f)
 
         cnt=-1
-        for gen in ['5','6']:
+        for gen in ['6']:
             if gen=='5':
                 letters = string.ascii_lowercase
                 assessed = assessed5
                 models = models5
                 ripfs = ripfs5
-                RMSE = RMSE5
-                ECS = ECS5
                 E_NET = E_NET5[:,-1]
             else:
                 letters = string.ascii_uppercase
                 assessed = assessed6
                 models = models6
                 ripfs = ripfs6
-                RMSE = RMSE6
-                ECS = ECS6
                 E_NET = E_NET6[:,-1]
             E_NET = np.ma.masked_where(np.isnan(E_NET),E_NET)
             
@@ -921,78 +779,52 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
                 data=[LM,ripfs[ic]]
                 for fb in range(len(fbk_names)):
                     this = assessed[ic,fb]
-                    if this<expert_min90[fb] or this>expert_max90[fb]:
-                        data.append('%0.2f'%(this)+'**')
-                    elif this<expert_min66[fb] or this>expert_max66[fb]:
-                        data.append('%0.2f'%(this)+'*')
-                    else:
-                        data.append('%0.2f'%(this))  
-                data.append('%0.2f'%(RMSE[ic]))
+                    data.append('%0.2f'%(this))  
                 data.append('%0.2f'%(E_NET[ic]))
-                if ECS[ic]>4.7:
-                    data.append('%0.2f'%(ECS[ic])+'**')
-                elif ECS[ic]>3.9:
-                    data.append('%0.2f'%(ECS[ic])+'*')
-                else:
-                    data.append('%0.2f'%(ECS[ic]))
-                print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
-                    format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12],data[13]), file=f)   
+                print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
+                    format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11]), file=f)   
             
             # multi-model mean
             print(dash, file=f)
             data=['CMIP'+gen+' Average','','%0.2f'%(np.ma.average(assessed[:,0])),'%0.2f'%(np.ma.average(assessed[:,1])),'%0.2f'%(np.ma.average(assessed[:,2])),\
             '%0.2f'%(np.ma.average(assessed[:,3])),'%0.2f'%(np.ma.average(assessed[:,4])),'%0.2f'%(np.ma.average(assessed[:,5])),'%0.2f'%(np.ma.average(assessed[:,6])),\
-            '%0.2f'%(np.ma.average(assessed[:,7])),'%0.2f'%(np.ma.average(assessed[:,8])),'%0.2f'%(np.ma.average(RMSE)),'%0.2f'%(np.ma.average(E_NET)),'%0.2f'%(np.ma.average(ECS))]
-            print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
-                format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12],data[13]), file=f)   
+            '%0.2f'%(np.ma.average(assessed[:,7])),'%0.2f'%(np.ma.average(assessed[:,8])),'%0.2f'%(np.ma.average(E_NET))]
+#            print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
+#                format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12]), file=f)   
             #print(dash, file=f)
             data=['CMIP'+gen+' Stdev','','%0.2f'%(np.ma.std(assessed[:,0])),'%0.2f'%(np.ma.std(assessed[:,1])),'%0.2f'%(np.ma.std(assessed[:,2])),\
             '%0.2f'%(np.ma.std(assessed[:,3])),'%0.2f'%(np.ma.std(assessed[:,4])),'%0.2f'%(np.ma.std(assessed[:,5])),'%0.2f'%(np.ma.std(assessed[:,6])),\
-            '%0.2f'%(np.ma.std(assessed[:,7])),'%0.2f'%(np.ma.std(assessed[:,8])),'%0.2f'%(np.ma.std(RMSE)),'%0.2f'%(np.ma.std(E_NET)),'%0.2f'%(np.ma.std(ECS))]
-            print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
-                format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12],data[13]), file=f)   
-            print(dash, file=f)
+            '%0.2f'%(np.ma.std(assessed[:,7])),'%0.2f'%(np.ma.std(assessed[:,8])),'%0.2f'%(np.ma.std(E_NET))]
+#            print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
+#                format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12]), file=f)   
+#            print(dash, file=f)
             
         # multi-model mean for combined CMIP5+6 models
         assessed = assessed56
-        RMSE = RMSE56
-        ECS = ECS56
         E_NET = E_NET56[:,-1]
         E_NET = np.ma.masked_where(np.isnan(E_NET),E_NET)
 
         #print(dash, file=f)
-        data=['CMIP5/6 Average','','%0.2f'%(np.ma.average(assessed[:,0])),'%0.2f'%(np.ma.average(assessed[:,1])),'%0.2f'%(np.ma.average(assessed[:,2])),\
+        data=['PPE Average','','%0.2f'%(np.ma.average(assessed[:,0])),'%0.2f'%(np.ma.average(assessed[:,1])),'%0.2f'%(np.ma.average(assessed[:,2])),\
         '%0.2f'%(np.ma.average(assessed[:,3])),'%0.2f'%(np.ma.average(assessed[:,4])),'%0.2f'%(np.ma.average(assessed[:,5])),'%0.2f'%(np.ma.average(assessed[:,6])),\
-        '%0.2f'%(np.ma.average(assessed[:,7])),'%0.2f'%(np.ma.average(assessed[:,8])),'%0.2f'%(np.ma.average(RMSE)),'%0.2f'%(np.ma.average(E_NET)),'%0.2f'%(np.ma.average(ECS))]
-        print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
-            format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12],data[13]), file=f)   
+        '%0.2f'%(np.ma.average(assessed[:,7])),'%0.2f'%(np.ma.average(assessed[:,8])),'%0.2f'%(np.ma.average(E_NET))]
+        print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
+            format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11]), file=f)   
         #print(dash, file=f)
-        data=['CMIP5/6 Stdev','','%0.2f'%(np.ma.std(assessed[:,0])),'%0.2f'%(np.ma.std(assessed[:,1])),'%0.2f'%(np.ma.std(assessed[:,2])),\
+        data=['PPE Stdev','','%0.2f'%(np.ma.std(assessed[:,0])),'%0.2f'%(np.ma.std(assessed[:,1])),'%0.2f'%(np.ma.std(assessed[:,2])),\
         '%0.2f'%(np.ma.std(assessed[:,3])),'%0.2f'%(np.ma.std(assessed[:,4])),'%0.2f'%(np.ma.std(assessed[:,5])),'%0.2f'%(np.ma.std(assessed[:,6])),\
-        '%0.2f'%(np.ma.std(assessed[:,7])),'%0.2f'%(np.ma.std(assessed[:,8])),'%0.2f'%(np.ma.std(RMSE)),'%0.2f'%(np.ma.std(E_NET)),'%0.2f'%(np.ma.std(ECS))]
-        print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
-            format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12],data[13]), file=f)   
-        print(dash, file=f)
-        data=['WCRP Central','']
-        for fb in range(len(fbk_names)):
-            data.append(str(expert_cld_fbks[fb]))
-        print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
-            format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10]), file=f)   
-        #print(dash, file=f)
-        data=['WCRP Stdev','']
-        for fb in range(len(fbk_names)):
-            data.append(str('%0.2f'%(err_expert_cld_fbks[fb])))
-        print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
-            format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10]), file=f)   
+        '%0.2f'%(np.ma.std(assessed[:,7])),'%0.2f'%(np.ma.std(assessed[:,8])),'%0.2f'%(np.ma.std(E_NET))]
+        print('{:<21s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}{:<11s}'.\
+            format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11]), file=f)   
         print(dash, file=f)
 
     
     # UNASSESSED
-    fbk_table = figdir+'CMIP56_unassessed_cld_fbks_WCRP.txt'
+    fbk_table = figdir+'E3SMv2_unassessed_ERFaci.txt'
     dash = '-' * 170
     with open(fbk_table, "w") as f:
         print(dash, file=f)
-        print('amip-p4K vs WCRP Unassessed Cloud Feedbacks', file=f)
+        print('E3SMv2 Unassessed ERFaci', file=f)
         print(dash, file=f)
         print('Date modified: '+str(date.today()), file=f)
         print('Contact: Mark D. Zelinka [zelinka1@llnl.gov]', file=f)
@@ -1002,7 +834,7 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
             format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12]), file=f)
         print(dash, file=f)
 
-        for gen in ['5','6']:
+        for gen in ['6']:
             if gen=='5':
                 unassessed = unassessed5
                 models = models5
@@ -1028,28 +860,28 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,onlytest=Fal
             '%0.2f'%(np.ma.average(unassessed[:,3])),'%0.2f'%(np.ma.average(unassessed[:,4])),'%0.2f'%(np.ma.average(unassessed[:,5])),'%0.2f'%(np.ma.average(unassessed[:,6])),\
             '%0.2f'%(np.ma.average(unassessed[:,7])),'%0.2f'%(np.ma.average(unassessed[:,8])),'%0.2f'%(np.ma.average(unassessed[:,9])),\
             '%0.2f'%(np.ma.average(unassessed[:,10]))]
-            print('{:<21s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}'.\
-                format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12]), file=f)   
+#            print('{:<21s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}'.\
+#                format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12]), file=f)   
             #print(dash, file=f)
             data=['CMIP'+gen+' Stdev','','%0.2f'%(np.ma.std(unassessed[:,0])),'%0.2f'%(np.ma.std(unassessed[:,1])),'%0.2f'%(np.ma.std(unassessed[:,2])),\
             '%0.2f'%(np.ma.std(unassessed[:,3])),'%0.2f'%(np.ma.std(unassessed[:,4])),'%0.2f'%(np.ma.std(unassessed[:,5])),'%0.2f'%(np.ma.std(unassessed[:,6])),\
             '%0.2f'%(np.ma.std(unassessed[:,7])),'%0.2f'%(np.ma.std(unassessed[:,8])),'%0.2f'%(np.ma.std(unassessed[:,9])),\
             '%0.2f'%(np.ma.std(unassessed[:,10]))]
-            print('{:<21s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}'.\
-                format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12]), file=f)   
-            print(dash, file=f)
+#            print('{:<21s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}'.\
+#                format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12]), file=f)   
+#            print(dash, file=f)
             
         # multi-model mean for combined CMIP5+6 models
         unassessed = unassessed56
         #print(dash, file=f)
-        data=['CMIP5/6 Average','','%0.2f'%(np.ma.average(unassessed[:,0])),'%0.2f'%(np.ma.average(unassessed[:,1])),'%0.2f'%(np.ma.average(unassessed[:,2])),\
+        data=['PPE Average','','%0.2f'%(np.ma.average(unassessed[:,0])),'%0.2f'%(np.ma.average(unassessed[:,1])),'%0.2f'%(np.ma.average(unassessed[:,2])),\
         '%0.2f'%(np.ma.average(unassessed[:,3])),'%0.2f'%(np.ma.average(unassessed[:,4])),'%0.2f'%(np.ma.average(unassessed[:,5])),'%0.2f'%(np.ma.average(unassessed[:,6])),\
         '%0.2f'%(np.ma.average(unassessed[:,7])),'%0.2f'%(np.ma.average(unassessed[:,8])),'%0.2f'%(np.ma.average(unassessed[:,9])),\
         '%0.2f'%(np.ma.average(unassessed[:,10]))]
         print('{:<21s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}{:<13s}'.\
             format(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12]), file=f)   
         #print(dash, file=f)
-        data=['CMIP5/6 Stdev','','%0.2f'%(np.ma.std(unassessed[:,0])),'%0.2f'%(np.ma.std(unassessed[:,1])),'%0.2f'%(np.ma.std(unassessed[:,2])),\
+        data=['PPE Stdev','','%0.2f'%(np.ma.std(unassessed[:,0])),'%0.2f'%(np.ma.std(unassessed[:,1])),'%0.2f'%(np.ma.std(unassessed[:,2])),\
         '%0.2f'%(np.ma.std(unassessed[:,3])),'%0.2f'%(np.ma.std(unassessed[:,4])),'%0.2f'%(np.ma.std(unassessed[:,5])),'%0.2f'%(np.ma.std(unassessed[:,6])),\
         '%0.2f'%(np.ma.std(unassessed[:,7])),'%0.2f'%(np.ma.std(unassessed[:,8])),'%0.2f'%(np.ma.std(unassessed[:,9])),\
         '%0.2f'%(np.ma.std(unassessed[:,10]))]

@@ -6,7 +6,7 @@ import numpy as np
 import json
 from datetime import date 
 
-datadir = './data/'
+datadir = './data_ERFaci/'
 
 meta = {
 "date_modified" :   str(date.today()),
@@ -16,41 +16,38 @@ meta = {
 def organize_fbk_jsons(new_dict,new_obsc_dict,mo,ripf,flag):
     # flag == 0 means this is the first new model included, just read the default json file.
 
-    # Load in the existing file containing pre-computed CMIP6 feedbacks
-    if flag == 0:
-        file = datadir+'cmip6_amip-p4K_cld_fbks.json'
+    file = datadir+'E3SMv2_PD_ERFaci.json'
+
+    if flag != 0:
+        f = open(file,'r')
+        old_dict = json.load(f)
+        f.close()
     else:
-        file = datadir+'cmip6_amip-p4K_cld_fbks_update.json'
-
-    f = open(file,'r')
-    old_dict = json.load(f)
-    f.close()
-
+        old_dict = {}
+    
     old_dict[mo]={} 
     old_dict[mo][ripf]={}
     old_dict[mo][ripf] = new_dict
     old_dict['metadata'] = meta
 
-    with open(datadir+'cmip6_amip-p4K_cld_fbks_update.json', 'w') as outfile:
+    with open(file, 'w') as outfile:
         json.dump(old_dict, outfile)
 
 
-    # Load in the existing file containing pre-computed CMIP6 obscuration-related feedbacks
-    if flag == 0:
-        file = datadir+'cmip6_amip-p4K_cld_obsc_fbks.json'
+    file = datadir+'E3SMv2_PD_ERFaci_obsc.json'
+    if flag != 0:
+        f = open(file,'r')
+        old_obsc_dict = json.load(f)
+        f.close()
     else:
-        file = datadir+'cmip6_amip-p4K_cld_obsc_fbks_update.json'
-
-    f = open(file,'r')
-    old_obsc_dict = json.load(f)
-    f.close()
+        old_obsc_dict = {}
 
     old_obsc_dict[mo]={} 
     old_obsc_dict[mo][ripf]={}
     old_obsc_dict[mo][ripf] = new_obsc_dict
     old_obsc_dict['metadata'] = meta
     
-    with open(datadir+'cmip6_amip-p4K_cld_obsc_fbks_update.json', 'w') as outfile:
+    with open(file, 'w') as outfile:
         json.dump(old_obsc_dict, outfile)
 
     return(old_dict,old_obsc_dict) # now updated to include info from input dictionary 
@@ -61,14 +58,14 @@ def organize_fbk_jsons(new_dict,new_obsc_dict,mo,ripf,flag):
 def organize_err_jsons(new_dict,mo,ripf,flag):
 
     # Load in the existing file containing pre-computed CMIP6 error metrics
-    if flag == 0:
-        file = datadir+'cmip6_amip_cld_errs.json'
-    else:
-        file = datadir+'cmip6_amip_cld_errs_update.json'
+    file = datadir+'E3SMv2_PD_errs.json'
 
-    f = open(file,'r')
-    old_dict = json.load(f)
-    f.close()
+    if flag != 0:
+        f = open(file,'r')
+        old_dict = json.load(f)
+        f.close()
+    else:
+        old_dict = {}
 
     names = ['E_TCA','E_ctpt','E_LW','E_SW','E_NET']
     old_dict[mo]={} 
@@ -91,7 +88,7 @@ def organize_err_jsons(new_dict,mo,ripf,flag):
     # end region loop   
     old_dict['metadata'] = meta
 
-    with open(datadir+'cmip6_amip_cld_errs_update.json', 'w') as outfile:
+    with open(file, 'w') as outfile:
         json.dump(old_dict, outfile)
 
     return(old_dict) # now updated to include info from input dictionary 

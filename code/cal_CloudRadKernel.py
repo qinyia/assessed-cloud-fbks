@@ -107,7 +107,9 @@ def apply_land_mask_v3(data,ocn_mask,lnd_mask):
 ###############################################################################################
 def compute_fbk(ctl,fut,DT):
     DR = fut - ctl
-    fbk = DR/DT
+    # YQIN 08/21/23: modify to run ERFaci diagnostics
+    #fbk = DR/DT
+    fbk = DR
     baseline = ctl
     return fbk,baseline
 
@@ -257,32 +259,32 @@ def get_CRK_data(filenames,fields,tslice):
     #<qinyi 2021-08-22 #------------------
 
     # Load in regridded monthly mean climatologies from control and perturbed simulation
-    print('    amip')
+    print('    PI')
     #ctl_tas = get_amip_data(filenames['amip'],'tas')
     #ctl_rsdscs = get_amip_data(filenames['amip'],'rsdscs')
     #ctl_rsuscs = get_amip_data(filenames['amip'],'rsuscs')
     #ctl_wap = get_amip_data(filenames['amip'],'wap',50000)
     #ctl_clisccp = get_amip_data(filenames['amip'],'clisccp')
 
-    ctl_tas = get_amip_data(filenames['amip'],fields[0],tslice)
-    ctl_rsdscs = get_amip_data(filenames['amip'],fields[1],tslice)
-    ctl_rsuscs = get_amip_data(filenames['amip'],fields[2],tslice)
-    ctl_wap = get_amip_data(filenames['amip'],fields[3],tslice, 500)
-    ctl_clisccp = get_amip_data(filenames['amip'],fields[4],tslice)
+    ctl_tas = get_amip_data(filenames['PI'],fields[0],tslice)
+    ctl_rsdscs = get_amip_data(filenames['PI'],fields[1],tslice)
+    ctl_rsuscs = get_amip_data(filenames['PI'],fields[2],tslice)
+    ctl_wap = get_amip_data(filenames['PI'],fields[3],tslice, 500)
+    ctl_clisccp = get_amip_data(filenames['PI'],fields[4],tslice)
 
     
-    print('    amip-p4K')
+    print('    PD')
     #fut_tas = get_amip_data(filenames['amip-p4K'],'tas')
     #fut_rsdscs = get_amip_data(filenames['amip-p4K'],'rsdscs')
     #fut_rsuscs = get_amip_data(filenames['amip-p4K'],'rsuscs')
     #fut_wap = get_amip_data(filenames['amip-p4K'],'wap',50000)
     #fut_clisccp = get_amip_data(filenames['amip-p4K'],'clisccp')
 
-    fut_tas = get_amip_data(filenames['amip-p4K'],fields[0],tslice)
-    fut_rsdscs = get_amip_data(filenames['amip-p4K'],fields[1],tslice)
-    fut_rsuscs = get_amip_data(filenames['amip-p4K'],fields[2],tslice)
-    fut_wap = get_amip_data(filenames['amip-p4K'],fields[3],tslice, 500)
-    fut_clisccp = get_amip_data(filenames['amip-p4K'],fields[4],tslice)
+    fut_tas = get_amip_data(filenames['PD'],fields[0],tslice)
+    fut_rsdscs = get_amip_data(filenames['PD'],fields[1],tslice)
+    fut_rsuscs = get_amip_data(filenames['PD'],fields[2],tslice)
+    fut_wap = get_amip_data(filenames['PD'],fields[3],tslice, 500)
+    fut_clisccp = get_amip_data(filenames['PD'],fields[4],tslice)
 
     #<qinyi 2021-08-22 #------------------
 
