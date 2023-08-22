@@ -577,7 +577,10 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     assessed5,unassessed5,ufbk_names5,models5,ripfs5,E_TCA5,E_ctpt5,E_LW5,E_SW5,E_NET5 = get_fbks(cld_fbks5,obsc_cld_fbks5,cld_errs5)
     assessed6,unassessed6,ufbk_names6,models6,ripfs6,E_TCA6,E_ctpt6,E_LW6,E_SW6,E_NET6 = get_fbks(cld_fbks6,obsc_cld_fbks6,cld_errs6)
     LN = assessed6.shape[1] # number of feedback categories
-    
+
+    dics = {} # Save assessed and unassessed fbk values 
+    dics['assessed'] = {}
+
     ################################################################################################
     # BAR PLOT OF ECS ASSESSMENT CLOUD FEEDBACK COMPONENTS
     # 1) showing the 66% range (+/- 0.95sd) and 5-95% range (+/- 1.64 sd) rather than 1sd (68%) and 2 sd (2.5-97.5%) ranges
@@ -605,6 +608,7 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     if AddOtherCMIPs:
         static_plot(assessed5,ECS5,models5,fbk_names,'5',fig,gs)
         static_plot(assessed6,ECS6,models6,fbk_names,'6',fig,gs)
+
     # highlight your model
     for inewmod,newmod in enumerate(newmods):
 
@@ -619,6 +623,10 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
             lw = 0
         ax.plot(assessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=6,color='blue',zorder=200,label=LABEL)
         #ax.legend(loc=0,fontsize=10,fancybox=True, framealpha=1)
+
+        dics['assessed'][newmod] = {}
+        for ifbk,fbk_name in enumerate(fbk_names):
+            dics['assessed'][newmod][fbk_name] = assessed6[m,ifbk] 
 
         #ax.barh(yloc,assessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
@@ -639,6 +647,7 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     plt.savefig(figdir+'E3SMv2_assessed_ERFaci_amip-PD.pdf',bbox_inches='tight')
     print('Done')
 
+    dics['unassessed'] = {} 
     ################################################################################################
     # BAR PLOT OF UNASSESSED CLOUD FEEDBACK COMPONENTS
     ################################################################################################
@@ -668,6 +677,10 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
         ax.plot(unassessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=8,color='blue',zorder=200,label=LABEL)
         #ax.legend(loc=0,fontsize=10,fancybox=True, framealpha=1)
 
+        dics['unassessed'][newmod] = {}
+        for ifbk,fbk_name in enumerate(ufbk_names6):
+            dics['unassessed'][newmod][fbk_name] = unassessed6[m,ifbk] 
+
         #ax.barh(yloc,unassessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
     if not AddOtherCMIPs: # add additional y axis tick labels and vertical reference line x = 0
@@ -684,6 +697,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
         label_models(ax,models5,models6)
 
     plt.savefig(figdir+'E3SMv2_unassessed_ERFaci_amip-PD.pdf',bbox_inches='tight')    
+
+    # Output assessed and unassessed cldfbks to a csv file
+    with open(figdir+'assessed_unassessed_ERFaci.json','w') as fp:
+        json.dump(dics,fp)
+    print('Saved assessed_unassessed_ERFaci.json')
 
     ################################################################################################
     # ERROR METRIC OF MODEL AGREEMENT WITH INDIVIDUAL CLOUD FEEDBACKS
