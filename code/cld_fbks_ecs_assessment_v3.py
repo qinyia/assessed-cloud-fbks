@@ -87,9 +87,9 @@ def get_expert_assessed_fbks():
     'Land Cloud Amount',
     'Middle Latitude Marine Low-Cloud Amount',
     'High Latitude Low-Cloud Optical Depth',
-    'Implied Unassessed Cloud Feedbacks',
-    'Sum of Assessed Cloud Feedbacks',
-    'Total Cloud Feedback']
+    'Implied Unassessed',
+    'Sum of Assessed',
+    'Total']
     
     expert_hi_alt,   err_expert_hi_alt =    0.20, 0.10
     expert_trop_lo,  err_expert_trop_lo =   0.25, 0.16
@@ -599,6 +599,9 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     assessed5,unassessed5,ufbk_names5,ECS5,models5,ripfs5,E_TCA5,E_ctpt5,E_LW5,E_SW5,E_NET5 = get_fbks(cld_fbks5,obsc_cld_fbks5,cld_errs5,ecs_dict5)
     assessed6,unassessed6,ufbk_names6,ECS6,models6,ripfs6,E_TCA6,E_ctpt6,E_LW6,E_SW6,E_NET6 = get_fbks(cld_fbks6,obsc_cld_fbks6,cld_errs6,ecs_dict6)
     LN = assessed6.shape[1] # number of feedback categories
+
+    dics = {}
+    dics['assessed'] = {}
     
     ################################################################################################
     # BAR PLOT OF ECS ASSESSMENT CLOUD FEEDBACK COMPONENTS
@@ -632,6 +635,10 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
 
         #ax.barh(yloc,assessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
+        dics['assessed'][newmod] = {}
+        for ifbk,fbk_name in enumerate(fbk_names):
+            dics['assessed'][newmod][fbk_name] = assessed6[m,ifbk]
+
     if not AddOtherCMIPs: # add additional y axis tick labels and vertical reference line x = 0
         yloc = np.arange(0,2*LN,2)-HEIGHT/2
         plt.yticks(yloc,fbk_names[-1::-1],fontsize=14)
@@ -649,6 +656,7 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     plt.savefig(figdir+'WCRP_assessed_cld_fbks_amip-p4K.pdf',bbox_inches='tight')
     print('Done')
 
+    dics['unassessed'] = {}
     ################################################################################################
     # BAR PLOT OF UNASSESSED CLOUD FEEDBACK COMPONENTS
     ################################################################################################
@@ -678,6 +686,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
 
         #ax.barh(yloc,unassessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
+        dics['unassessed'][newmod] = {}
+        for ifbk,fbk_name in enumerate(ufbk_names6):
+            dics['unassessed'][newmod][fbk_name] = unassessed6[m,ifbk]
+
+
     if not AddOtherCMIPs: # add additional y axis tick labels and vertical reference line x = 0
         yloc = np.arange(0,2*LN,2)-HEIGHT/2
         plt.yticks(yloc,ufbk_names6[-1::-1],fontsize=14)
@@ -693,6 +706,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
 
     plt.savefig(figdir+'WCRP_unassessed_cld_fbks_amip-p4K.pdf',bbox_inches='tight')    
     
+    # Save assessed and unassessed fbks into a json file
+    with open(figdir+'assessed_unassessed_cld_fbks.json','w') as fp:
+        json.dump(dics,fp)
+    print('Saved assessed_unassessed_cld_fbks.json')
+
     ################################################################################################
     # ERROR METRIC OF MODEL AGREEMENT WITH INDIVIDUAL CLOUD FEEDBACKS
     ################################################################################################
