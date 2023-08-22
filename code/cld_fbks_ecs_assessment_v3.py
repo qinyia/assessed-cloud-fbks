@@ -622,13 +622,13 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
         #LABEL = newmod.split('.')[-1]
         LABEL = newmod
 
-        yloc = np.arange(0,2*LN,2)-HEIGHT/2 - inewmod/7.5
+        yloc = np.arange(0,2*LN,2)-HEIGHT/2 #- inewmod/7.5
         if LABEL in ['v1','v2','gwenergy']: # only add the stitch line for v1 and v2.
             lw = 1
         else:
             lw = 0
-        ax.plot(assessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=6,color=colors[inewmod],zorder=200,label=LABEL)
-        ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
+        ax.plot(assessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=6,color='blue',zorder=200,label=LABEL)
+        #ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
 
         #ax.barh(yloc,assessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
@@ -667,14 +667,14 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
 
         LN = unassessed6.shape[1]
 
-        yloc = np.arange(0,2*LN,2)-HEIGHT/2 - inewmod/7.5
+        yloc = np.arange(0,2*LN,2)-HEIGHT/2 #- inewmod/7.5
         if newmod.split('.')[-1] in ['v1','v2','gwenergy']: # only add the stitch line for v1 and v2.
             lw = 1
         else:
             lw = 0
 
-        ax.plot(unassessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=8,color=colors[inewmod],zorder=200,label=LABEL)
-        ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
+        ax.plot(unassessed6[m,-1::-1],yloc,ls='-',lw=lw,marker=MARK[newmod],ms=8,color='blue',zorder=200,label=LABEL)
+        #ax.legend(loc=1,fontsize=10,fancybox=True, framealpha=1)
 
         #ax.barh(yloc,unassessed6[m,-1::-1],height=HEIGHT/4,align='center',color=colors[inewmod],alpha=0.3)
 
@@ -714,105 +714,105 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     models56 = np.append(models5,models6)
     inds = np.argsort(RMSE56)
 
-    ######################################################
-    # Plot RMSE vs total cloud feedback:
-    ######################################################
-    plt.figure(figsize=(18,12))
-    gs = gridspec.GridSpec(10, 24)
-
-    # Color-code by ECS
-    ax = plt.subplot(gs[:4, :9])
-    plt.scatter(RMSE5,assessed5[:,-1],s=200,c=ECS5,marker='D',zorder=10,cmap=CMAP0, norm=NORM0)
-    plt.scatter(RMSE6,assessed6[:,-1],s=275,c=ECS6,marker='o',zorder=10,cmap=CMAP0, norm=NORM0)
-    # plot again with no fill color so all symbols are present
-    plt.plot(RMSE5,assessed5[:,-1],'D',ms=np.sqrt(200),mec='k',mfc='None',zorder=20,label='CMIP5')
-    plt.plot(RMSE6,assessed6[:,-1],'o',ms=np.sqrt(275),mec='k',mfc='None',zorder=20,label='CMIP6')
-    # highlight your model
-    for inewmod,newmod in enumerate(newmods):
-
-        m = models6.index(newmod)
-        plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])   
-
-    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
-    plt.xlabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
-    plt.ylabel('Total Cloud Feedback [Wm$^{-2}$K$^{-1}$]',fontsize=14)
-    plt.xticks(fontsize=12)
-    plt.yticks(fontsize=12)
-    # put horizontal shading for assessed total cloud feedback
-    horiz_shade(expert_cld_fbks[-1],err_expert_cld_fbks[-1],0.055)
-    plt.xlim(0.05,0.15)
-    plt.ylim(-0.35,1.25)
-    plt.title('a',fontsize=16,loc='left')
-    # Label each model:
-    x=RMSE56
-    y=assessed56[:,-1]
-    cnt=0
-    for im,model in enumerate(models56):
-        cnt+=1
-        if np.ma.is_masked(x[im]):
-            continue
-        if model in models5:
-            LETTER = string.ascii_lowercase[im]
-        else:
-            LETTER = string.ascii_uppercase[im]
-        COLOR='k'
-        if ECS56[im]<3.5 or ECS56[im]>5:
-            COLOR='w'
-        ax.text(x[im],y[im],LETTER,ha='center',va='center',color=COLOR,fontsize=10,fontweight='bold',zorder=30)    
-    # create a second axes for the colorbar
-    ax2 = plt.subplot(gs[:4, 9:10])
-    cb = mpl.colorbar.ColorbarBase(ax2, cmap=CMAP0, norm=NORM0,spacing='proportional', ticks=BOUNDS0, boundaries=BOUNDS0)
-    cb.ax.tick_params(labelsize=14)
-    ax2.set_ylabel('ECS [K]', size=14)
-
-    # Color-code by E_NET
-    KEM_CMAP = plt.cm.magma_r  # define the colormap
-    KEM_BOUNDS = np.arange(0.7,1.9,0.15)
-    KEM_NORM = mpl.colors.BoundaryNorm(KEM_BOUNDS, KEM_CMAP.N) 
-
-    ax = plt.subplot(gs[:4, 12:21])
-    plt.scatter(RMSE5,assessed5[:,-1],s=200,c=E_NET5[:,-1],marker='D',zorder=10,cmap=KEM_CMAP, norm=KEM_NORM)
-    plt.scatter(RMSE6,assessed6[:,-1],s=275,c=E_NET6[:,-1],marker='o',zorder=10,cmap=KEM_CMAP, norm=KEM_NORM)
-    # plot again with no fill color so all symbols are present
-    plt.plot(RMSE5,assessed5[:,-1],'D',ms=np.sqrt(200),mec='k',mfc='None',zorder=20,label='CMIP5')
-    plt.plot(RMSE6,assessed6[:,-1],'o',ms=np.sqrt(275),mec='k',mfc='None',zorder=20,label='CMIP6')
-    # highlight your model
-    for inewmod,newmod in enumerate(newmods):
-
-        m = models6.index(newmod)
-        plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])
-
-    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
-    plt.xlabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
-    plt.xticks(fontsize=12)
-    plt.yticks(fontsize=12)
-    # put horizontal shading for assessed total cloud feedback
-    horiz_shade(expert_cld_fbks[-1],err_expert_cld_fbks[-1],0.055)
-    plt.xlim(0.05,0.15)
-    plt.ylim(-0.35,1.25)
-    plt.title('b',fontsize=16,loc='left')
-    # Label each model:
-    x=RMSE56
-    y=assessed56[:,-1]
-    cnt=0
-    for im,model in enumerate(models56):
-        cnt+=1
-        if np.ma.is_masked(x[im]):
-            continue
-        if model in models5:
-            LETTER = string.ascii_lowercase[im]
-        else:
-            LETTER = string.ascii_uppercase[im]
-        COLOR='k'
-        if E_NET56[im,-1]>1.15:
-            COLOR='w'
-        ax.text(x[im],y[im],LETTER,ha='center',va='center',color=COLOR,fontsize=10,fontweight='bold',zorder=30)
-    # create a second axes for the colorbar
-    ax2 = plt.subplot(gs[:4, 21:22])
-    cb = mpl.colorbar.ColorbarBase(ax2, cmap=KEM_CMAP, norm=KEM_NORM,spacing='proportional', ticks=KEM_BOUNDS, boundaries=KEM_BOUNDS)
-    cb.ax.tick_params(labelsize=14)
-    ax2.set_ylabel('$\mathrm{E_{NET}}$', size=14)
-    plt.savefig(figdir+'WCRP_assessed_RMSE_v_cldfbk2_amip-p4K.pdf',bbox_inches='tight')
+#    ######################################################
+#    # Plot RMSE vs total cloud feedback:
+#    ######################################################
+#    plt.figure(figsize=(18,12))
+#    gs = gridspec.GridSpec(10, 24)
+#
+#    # Color-code by ECS
+#    ax = plt.subplot(gs[:4, :9])
+#    plt.scatter(RMSE5,assessed5[:,-1],s=200,c=ECS5,marker='D',zorder=10,cmap=CMAP0, norm=NORM0)
+#    plt.scatter(RMSE6,assessed6[:,-1],s=275,c=ECS6,marker='o',zorder=10,cmap=CMAP0, norm=NORM0)
+#    # plot again with no fill color so all symbols are present
+#    plt.plot(RMSE5,assessed5[:,-1],'D',ms=np.sqrt(200),mec='k',mfc='None',zorder=20,label='CMIP5')
+#    plt.plot(RMSE6,assessed6[:,-1],'o',ms=np.sqrt(275),mec='k',mfc='None',zorder=20,label='CMIP6')
+#    # highlight your model
+#    for inewmod,newmod in enumerate(newmods):
+#
+#        m = models6.index(newmod)
+#        plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec='blue',mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])   
+#
+#    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
+#    plt.xlabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
+#    plt.ylabel('Total Cloud Feedback [Wm$^{-2}$K$^{-1}$]',fontsize=14)
+#    plt.xticks(fontsize=12)
+#    plt.yticks(fontsize=12)
+#    # put horizontal shading for assessed total cloud feedback
+#    horiz_shade(expert_cld_fbks[-1],err_expert_cld_fbks[-1],0.055)
+#    plt.xlim(0.05,0.15)
+#    plt.ylim(-0.35,1.25)
+#    plt.title('a',fontsize=16,loc='left')
+#    # Label each model:
+#    x=RMSE56
+#    y=assessed56[:,-1]
+#    cnt=0
+#    for im,model in enumerate(models56):
+#        cnt+=1
+#        if np.ma.is_masked(x[im]):
+#            continue
+#        if model in models5:
+#            LETTER = string.ascii_lowercase[im]
+#        else:
+#            LETTER = string.ascii_uppercase[im]
+#        COLOR='k'
+#        if ECS56[im]<3.5 or ECS56[im]>5:
+#            COLOR='w'
+#        ax.text(x[im],y[im],LETTER,ha='center',va='center',color=COLOR,fontsize=10,fontweight='bold',zorder=30)    
+#    # create a second axes for the colorbar
+#    ax2 = plt.subplot(gs[:4, 9:10])
+#    cb = mpl.colorbar.ColorbarBase(ax2, cmap=CMAP0, norm=NORM0,spacing='proportional', ticks=BOUNDS0, boundaries=BOUNDS0)
+#    cb.ax.tick_params(labelsize=14)
+#    ax2.set_ylabel('ECS [K]', size=14)
+#
+#    # Color-code by E_NET
+#    KEM_CMAP = plt.cm.magma_r  # define the colormap
+#    KEM_BOUNDS = np.arange(0.7,1.9,0.15)
+#    KEM_NORM = mpl.colors.BoundaryNorm(KEM_BOUNDS, KEM_CMAP.N) 
+#
+#    ax = plt.subplot(gs[:4, 12:21])
+#    plt.scatter(RMSE5,assessed5[:,-1],s=200,c=E_NET5[:,-1],marker='D',zorder=10,cmap=KEM_CMAP, norm=KEM_NORM)
+#    plt.scatter(RMSE6,assessed6[:,-1],s=275,c=E_NET6[:,-1],marker='o',zorder=10,cmap=KEM_CMAP, norm=KEM_NORM)
+#    # plot again with no fill color so all symbols are present
+#    plt.plot(RMSE5,assessed5[:,-1],'D',ms=np.sqrt(200),mec='k',mfc='None',zorder=20,label='CMIP5')
+#    plt.plot(RMSE6,assessed6[:,-1],'o',ms=np.sqrt(275),mec='k',mfc='None',zorder=20,label='CMIP6')
+#    # highlight your model
+#    for inewmod,newmod in enumerate(newmods):
+#
+#        m = models6.index(newmod)
+#        plt.plot(RMSE6[m],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])
+#
+#    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
+#    plt.xlabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
+#    plt.xticks(fontsize=12)
+#    plt.yticks(fontsize=12)
+#    # put horizontal shading for assessed total cloud feedback
+#    horiz_shade(expert_cld_fbks[-1],err_expert_cld_fbks[-1],0.055)
+#    plt.xlim(0.05,0.15)
+#    plt.ylim(-0.35,1.25)
+#    plt.title('b',fontsize=16,loc='left')
+#    # Label each model:
+#    x=RMSE56
+#    y=assessed56[:,-1]
+#    cnt=0
+#    for im,model in enumerate(models56):
+#        cnt+=1
+#        if np.ma.is_masked(x[im]):
+#            continue
+#        if model in models5:
+#            LETTER = string.ascii_lowercase[im]
+#        else:
+#            LETTER = string.ascii_uppercase[im]
+#        COLOR='k'
+#        if E_NET56[im,-1]>1.15:
+#            COLOR='w'
+#        ax.text(x[im],y[im],LETTER,ha='center',va='center',color=COLOR,fontsize=10,fontweight='bold',zorder=30)
+#    # create a second axes for the colorbar
+#    ax2 = plt.subplot(gs[:4, 21:22])
+#    cb = mpl.colorbar.ColorbarBase(ax2, cmap=KEM_CMAP, norm=KEM_NORM,spacing='proportional', ticks=KEM_BOUNDS, boundaries=KEM_BOUNDS)
+#    cb.ax.tick_params(labelsize=14)
+#    ax2.set_ylabel('$\mathrm{E_{NET}}$', size=14)
+#    plt.savefig(figdir+'WCRP_assessed_RMSE_v_cldfbk2_amip-p4K.pdf',bbox_inches='tight')
 
 
 
@@ -834,11 +834,11 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     for inewmod,newmod in enumerate(newmods):
 
         m = models6.index(newmod)
-        plt.plot(E_NET6[m,-1],assessed6[m,-1],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])       
+        plt.plot(E_NET6[m,-1],assessed6[m,-1],'o',ms=np.sqrt(325),mec='blue',mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])       
 
-    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
-    LABEL=scatter_label(x,y,models56,models5,False,True)
-    plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
+    #plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
+    #LABEL=scatter_label(x,y,models56,models5,False,True)
+    #plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
     plt.ylabel(fbk_names[-1]+' [Wm$^{-2}$K$^{-1}$]',fontsize=14)
     plt.xlabel('$\mathrm{E_{NET}}$',fontsize=14)
     plt.title('a',fontsize=16,loc='left')
@@ -859,15 +859,15 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     for inewmod,newmod in enumerate(newmods):
 
         m = models6.index(newmod)
-        plt.plot(E_NET6[m,-1],RMSE6[m],'o',ms=np.sqrt(325),mec=colors[inewmod],mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])       
+        plt.plot(E_NET6[m,-1],RMSE6[m],'o',ms=np.sqrt(325),mec='blue',mew=3,mfc='None',zorder=20,label=newmod.split('.')[-1])       
 
-    plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
-    LABEL=scatter_label(x,y,models56,models5,False,True)
-    plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
+    #plt.legend(loc=8,ncol=3,handletextpad=0.4,frameon=0)
+    #LABEL=scatter_label(x,y,models56,models5,False,True)
+    #plt.text(0.95,0.95,LABEL,fontsize=12,color='k',ha='right',va='center',transform=ax.transAxes) # (0, 0) is lower-left and (1, 1) is upper-right
     plt.ylabel('Cloud Feedback RMSE [Wm$^{-2}$K$^{-1}$]',fontsize=14)
     plt.xlabel('$\mathrm{E_{NET}}$',fontsize=14)
     plt.title('b',fontsize=16,loc='left')
-    plt.ylim(0.04,0.15)
+    #plt.ylim(0.04,0.15)
     plt.xlim(0.60,1.65)
     plt.savefig(figdir+'WCRP_totcldfbks2_v_E_NET_amip-p4K.pdf',bbox_inches='tight')
  
@@ -919,7 +919,8 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
             
             for ic in range(len(models)):
                 cnt+=1
-                LM = letters[cnt]+') '+models[ic]
+                #LM = letters[cnt]+') '+models[ic]
+                LM = str(ic)+') '+models[ic]
                 data=[LM,ripfs[ic]]
                 for fb in range(len(fbk_names)):
                     this = assessed[ic,fb]
