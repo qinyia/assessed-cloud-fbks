@@ -87,9 +87,9 @@ def get_expert_assessed_fbks():
     'Land Cloud Amount',
     'Middle Latitude Marine Low-Cloud Amount',
     'High Latitude Low-Cloud Optical Depth',
-    'Implied Unassessed ERFaci',
-    'Sum of Assessed ERFaci',
-    'Total ERFaci']
+    'Implied Unassessed',
+    'Sum of Assessed',
+    'Total']
     
     expert_hi_alt,   err_expert_hi_alt =    0.20, 0.10
     expert_trop_lo,  err_expert_trop_lo =   0.25, 0.16
@@ -601,9 +601,9 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     'Land Cloud Amount',
     'Middle Latitude Marine Low-Cloud Amount',
     'High Latitude Low-Cloud Optical Depth',
-    'Implied Unassessed ERFaci',
-    'Sum of Assessed ERFaci',
-    'Total ERFaci']
+    'Implied Unassessed',
+    'Sum of Assessed',
+    'Total']
 
     if AddOtherCMIPs:
         static_plot(assessed5,ECS5,models5,fbk_names,'5',fig,gs)
