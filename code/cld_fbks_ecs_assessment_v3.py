@@ -610,7 +610,9 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     # 3) add something to the legend that makes it clear what the range bars are (1 sd / 2sd or 66% / 5-95%)
     ################################################################################################
 
-    fig=plt.figure(figsize=(18,12))
+#    fig=plt.figure(figsize=(18,12))
+    fig=plt.figure(figsize=(18,10))
+
     gs = gridspec.GridSpec(20, 20)
     ax = plt.subplot(gs[:, :10])
     fbk_names = plot_expert()
@@ -660,7 +662,9 @@ def make_all_figs(cld_fbks6,obsc_cld_fbks6,cld_errs6,newmods,figdir,AddOtherCMIP
     ################################################################################################
     # BAR PLOT OF UNASSESSED CLOUD FEEDBACK COMPONENTS
     ################################################################################################
-    fig=plt.figure(figsize=(18,12))
+#    fig=plt.figure(figsize=(18,12))
+    fig=plt.figure(figsize=(18,10))
+
     gs = gridspec.GridSpec(20, 20)
     ax = plt.subplot(gs[:, :10])
     if AddOtherCMIPs:
