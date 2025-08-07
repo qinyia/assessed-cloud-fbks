@@ -1,0 +1,8 @@
+<<<<<<< HEAD
+code/__pycache__/
+figures/
+xmls/
+=======
+*.xml
+__pycache__
+>>>>>>> 2a15869dfb2cffe27319d883b337a1db3745c877
